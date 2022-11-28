@@ -1,0 +1,53 @@
+---
+title: "data_cleaning"
+output: html_document
+date: "2022-11-23"
+---
+
+This script will be used for cleaning the Healthy Dairy Worker's project data.
+
+Data collection is complete for this project.
+
+Authors: Hannah Fenelon, Jorge Rivera-Gonzalez, Hilary McCleland-Wieser
+
+Please refer to the README.md file in this repository to clean this data according to the agreed upon standards
+
+```{r}
+# Clearing the environment
+rm(list=ls())
+```
+
+
+
+```{r}
+# Installing and loading libraries and packages
+
+if (!require(pacman)) install.packages('pacman', repos = 'https://cloud.r-project.org')
+#REDCap generated code to add labels to all variables, make relevant variables factors, and assign levels
+pacman::p_load(dplyr, tidyr, janitor, ggplot2, readr, tidyverse, lubridate, naniar, Hmisc)
+```
+
+
+
+```{r}
+# Reading in data and labels
+data <- read.csv("Z:/unrestricted/Center Projects/Healthy Dairy Worker/Data and Analysis/Data/HealthyDairyWorkers_DATA_2022-10-12_1152.csv")
+
+labels <- read.csv("Z:/unrestricted/Center Projects/Healthy Dairy Worker/Data and Analysis/Data/HealthyDairyWorkers_DATA_LABELS_2022-10-10.csv")
+```
+
+
+```{r}
+# Change all "" to NA throughout entire dataframe
+data <- replace_with_na_all(data=data, condition=~.x == "")
+
+# Delete empty observations from the dataset (record_id= 96 and check for others)
+```
+
+
+```{r}
+
+```
+
+
+
