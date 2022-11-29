@@ -32,6 +32,7 @@ pacman::p_load(dplyr, tidyr, janitor, ggplot2, readr, tidyverse, lubridate, nani
 ```{r}
 # Reading in data and labels
 data <- read.csv("Z:/unrestricted/Center Projects/Healthy Dairy Worker/Data and Analysis/Data/HealthyDairyWorkers_DATA_2022-10-12_1152.csv")
+data <- as.data.frame(data)
 
 labels <- read.csv("Z:/unrestricted/Center Projects/Healthy Dairy Worker/Data and Analysis/Data/HealthyDairyWorkers_DATA_LABELS_2022-10-10.csv")
 ```
@@ -40,14 +41,142 @@ labels <- read.csv("Z:/unrestricted/Center Projects/Healthy Dairy Worker/Data an
 ```{r}
 # Change all "" to NA throughout entire dataframe
 data <- replace_with_na_all(data=data, condition=~.x == "")
+data <- as.data.frame(data)
 
 # Delete empty observations from the dataset (record_id= 96 and check for others)
 ```
 
 
+# Create one variable for study id named "identifier"
+
+## new variables: identifier, RedCap_id (record_id and record_id_v3)
+## variables used:id_number, id_number_v2, id_number_v3, record_id, record_id_v3
+## cleaning: coalesced all id_number versions into "identifier" and record_id versions into "RedCap_id" so there is one variable containing id_number and record_id, changed "DHW-D01-S05" to be "HDW-D01-S05", filled in the whole identifier for those with only the last numbers, pulled the record_id for those missing id_numbers, matched the record_id to the id_number in RedCap
+## class: character
 ```{r}
+# Create new variable called "identifier" that contains the study id for all participants (combining "id_number", "id_number_v2", "id_number_v3)
+data <- data %>% mutate(identifier = coalesce(id_number, id_number_v2, id_number_v3))
+
+
+# Fix values that were spelled incorrectly or did not have the full identifier string
+data$identifier <- replace(data$identifier, data$identifier=="DHW-D01-S05", "HDW-D01-S05")
+data$identifier <- replace(data$identifier, data$identifier=="S123", "HDW-C02-S123") #NEED TO CHECK REDCAP FOR ALL BELOW make sure there aren't duplicates of the numbers elsewhere in the data
+data$identifier <- replace(data$identifier, data$identifier=="23", "HDW-D01-S23")
+data$identifier <- replace(data$identifier, data$identifier=="108", "HDW-C02-S108")
+data$identifier <- replace(data$identifier, data$identifier=="111", "HDW-C02-S111")
+data$identifier <- replace(data$identifier, data$identifier=="118", "HDW-C02-S118")
+data$identifier <- replace(data$identifier, data$identifier=="113", "HDW-C02-S113")
+data$identifier <- replace(data$identifier, data$identifier=="131", "HDW-C02-S131")
+data$identifier <- replace(data$identifier, data$identifier=="133", "HDW-C02-S133")
+data$identifier <- replace(data$identifier, data$identifier=="139", "HDW-C02-S139")
+data$identifier <- replace(data$identifier, data$identifier=="143", "HDW-C02-S143") #THERE ARE TWO OF THESE AS DIFFERENT RECORD NUMBERS
+
+
+
+# Filling in remaining missing identifier values by using record ID and RedCap to match them
+
+# Create new variable called RedCap_identifier that contains the record id that RedCap assigns participants (combining "record_id" and "record_id_v3")
+data$record_id <- as.character(data$record_id)
+data <- data %>% mutate(RedCap_id = coalesce(record_id, record_id_v3))
+data <- data %>% mutate(identifier_records = ifelse(is.na(data$identifier), data$RedCap_id, data$identifier))
+
+# Matching RedCap_id with id_number versions from RedCap manually
+data$identifier_records <- replace(data$identifier_records, data$identifier_records=="103", "HDW-D04-S206")
+data$identifier_records <- replace(data$identifier_records, data$identifier_records=="106", "HDW-D04-S208")
+data$identifier_records <- replace(data$identifier_records, data$identifier_records=="108", "HDW-D02-S210")
+data$identifier_records <- replace(data$identifier_records, data$identifier_records=="109", "HDW-D05-S211")
+data$identifier_records <- replace(data$identifier_records, data$identifier_records=="110", "HDW-D05-S210")
+data$identifier_records <- replace(data$identifier_records, data$identifier_records=="24", "HDW-C02-S103")
+data$identifier_records <- replace(data$identifier_records, data$identifier_records=="30", "HDW-D02-S17")
+data$identifier_records <- replace(data$identifier_records, data$identifier_records=="32", "HDW-D02-S200")
+data$identifier_records <- replace(data$identifier_records, data$identifier_records=="41", "HDW-D01-S201")
+data$identifier_records <- replace(data$identifier_records, data$identifier_records=="50", "HDW-D03-S32")
+data$identifier_records <- replace(data$identifier_records, data$identifier_records=="76", " HDW-C02-S131")
+data$identifier_records <- replace(data$identifier_records, data$identifier_records=="77", "HDW-C02-S130")
+data$identifier_records <- replace(data$identifier_records, data$identifier_records=="79", "HDW-C02-S112")
+data$identifier_records <- replace(data$identifier_records, data$identifier_records=="81", "HDW-D02-S200")
+data$identifier_records <- replace(data$identifier_records, data$identifier_records=="83", "HDW-C02-S114")
+data$identifier_records <- replace(data$identifier_records, data$identifier_records=="85", "HDW-C02-S136")
+data$identifier_records <- replace(data$identifier_records, data$identifier_records=="87", "HDW-C02-S134")
+data$identifier_records <- replace(data$identifier_records, data$identifier_records=="88", "HDW-C02-S139")
+data$identifier_records <- replace(data$identifier_records, data$identifier_records=="92", "HDW-C02-S143")
+data$identifier_records <- replace(data$identifier_records, data$identifier_records=="94", "HDW-C02-S141")
+data$identifier_records <- replace(data$identifier_records, data$identifier_records=="95", "HDW-C02-S143")
+#data$identifier_records <- replace(data$identifier_records, data$identifier_records=="96", "") # NO DATA REMOVE FROM DATA SET
+#data$identifier_records <- replace(data$identifier_records, data$identifier_records=="97", "") # NO DATA REMOVE FROM DATA SET
+#data$identifier_records <- replace(data$identifier_records, data$identifier_records=="98", "") # NO DATA REMOVE FROM DATA SET
+#data$identifier_records <- replace(data$identifier_records, data$identifier_records=="99", "") # NO DATA REMOVE FROM DATA SET
+
+
+
+# Rename identifier_records to be identifier
+data$identifier <- data$identifier_records
+
+# Delete intermediate variables not of use: identifier_records and variables that are incomplete (id_number, id_number_v2, id_number_v3, record_id, record_id_v3)
+#data <- data %>% select(-c(identifier_records, id_number, id_number_v2, id_number_v3, record_id, record_id_v3))
+
 
 ```
 
 
+
+
+```{r}
+# Data checks for specimens collected and the corresponding identifiers
+
+ids<- c("redcap_event_name", "identifier", "eno_id", "spiro_id", "nasal_id", "nasal_sample_id", "serum_id", "serum_sample_id", "fecal_id", "bp_id")
+
+interest <- c("redcap_event_name", "identifier", "eno_id", "spiro_id", "nasal_id", 
+             "nasal_sample_id", "serum_id", "serum_sample_id", "fecal_id", "bp_id", "eno_date","spiro_date", 
+             "nasal_date", "nasal_transport_date","serum_date", "serum_transport_date", "fecal_date",
+             "eno_notes","spiro_notes", "nasal_notes", "serum_notes", "fecal_notes")
+
+
+temp <- data %>% select(all_of(ids))
+View(temp)
+
+# Loop to determine which IDs do not match for samples collected that are attached to the record
+
+for (obs in 1:length(data)) {
+  
+  #eno_id check
+  ifelse(!is.na(data$eno_id[obs]) & data$identifier[obs] != data$eno_id[obs], print(paste(data$identifier[obs], "does not match", data$eno_id[obs], "for eno_id", sep=" ")), "match")
+  
+  #spiro_id check
+  ifelse(!is.na(data$spiro_id[obs]) & data$identifier[obs] != data$spiro_id[obs], print(paste(data$identifier[obs], "does not match", data$spiro_id[obs], "for spiro_id", sep=" ")), "match")
+  
+  #nasal_id check
+   ifelse(!is.na(data$nasal_id[obs]) & data$identifier[obs] != data$nasal_id[obs], print(paste(data$identifier[obs], "does not match", data$nasal_id[obs], "for nasal_id", sep=" ")), "match")
+    
+  #serum_id check    
+   ifelse(!is.na(data$serum_id[obs]) & data$identifier[obs] != data$serum_id[obs], print(paste(data$identifier[obs], "does not match", data$serum_id[obs], "for serum_id", sep=" ")), "match")
+   
+   #fecal_id check
+   ifelse(!is.na(data$fecal_id[obs]) & data$identifier[obs] != data$fecal_id[obs], print(paste(data$identifier[obs], "does not match", data$fecal_id[obs], "for fecal_id", sep=" ")), "match")
+   
+   #nasal_sample_id check
+   ifelse(!is.na(data$nasal_sample_id[obs]) & data$identifier[obs] != data$nasal_sample_id[obs], print(paste(data$identifier[obs], "does not match", data$nasal_sample_id[obs], "for nasal_sample_id", sep=" ")), "match")
+   
+   #serum_sample_id check
+   ifelse(!is.na(data$serum_sample_id[obs]) & data$identifier[obs] != data$serum_sample_id[obs], print(paste(data$identifier[obs], "does not match", data$serum_sample_id[obs], "for serum_sample_id", sep=" ")), "match")
+   
+   #bp_id check
+   ifelse(!is.na(data$bp_id[obs]) & data$identifier[obs] != data$bp_id[obs], print(paste(data$identifier[obs], "does not match", data$bp_id[obs], "for bp_id", sep=" ")), "match")
+  
+}
+
+```
+
+
+```{r}
+# Make variable that is 1-6 for visit number (use casewhen function)
+hdw <- hdw %>% separate(redcap_event_name, c("visit","person_type"), sep = "_arm_")
+
+```
+
+
+```{r}
+# testing changes
+
+```
 
