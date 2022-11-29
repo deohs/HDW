@@ -176,18 +176,7 @@ hdw <- hdw %>% separate(redcap_event_name, c("visit","person_type"), sep = "_arm
 
 
 ```{r}
-hdw <- data
-# Subset to get IDs mapped and record numbers
-hdw %>% 
-  select(record_id,redcap_event_name,id_number,id_number_v3) %>% 
-  separate(redcap_event_name, c("Visit","PersonType"), sep = "_arm_") %>% 
-  mutate(dairyworker = ifelse(PersonType == 1,1,0)) %>% 
-  separate(Visit, c("baseline-month","Month"), sep = "_") %>% 
-  mutate(Visit = replace_na(Month,0)) %>%
-  group_by(record_id) %>% 
-  arrange(record_id,Visit) %>% 
-  slice(1) %>% 
-  ungroup -> hdw_id
+# testing changes
 
 ```
 
