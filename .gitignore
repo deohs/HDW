@@ -1,2 +1,6 @@
 HealthyDairyWorkers_DATA*
 .Rproj.user
+.Rhistory
+.Rdata
+.httr-oauth
+.DS_Store
