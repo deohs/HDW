@@ -178,5 +178,7 @@ hdw <- hdw %>% separate(redcap_event_name, c("visit","person_type"), sep = "_arm
 ```{r}
 # testing changes
 #trying to see if I can see changes 
+table(data$race___01)
+
 ```
 
