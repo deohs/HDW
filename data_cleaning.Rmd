@@ -58,7 +58,12 @@ data <- data %>% mutate(identifier = coalesce(id_number, id_number_v2, id_number
 
 
 # Delete completely empty observations (record_id = 96 and 99)
-data <- data %>% filter(record_id!=96 & record_id!=99)
+data <- data %>% filter(record_id!=96 & record_id!=97 & record_id!=98 & record_id!=99) #96 and 99 were blank:97 and 98 only had ID number with no data
+
+# Delete other record ID
+data <- data %>% filter(record_id!=81) #duplicate data for ID S200 for month 12 only. Record ID C32 is the more complete of the records for this person. This person switched between dairy and community arms (held different jobs throughout)
+data <- data %>% filter(record_id!=72) #contained duplicate information for S125 that was already in S125's record
+data <- data %>% filter(record_id!=108) #almost completely empty except duplicate information in specimen collection forms (110 is complete)
 
 
 # Fix values that were spelled incorrectly or did not have the full identifier string
@@ -326,4 +331,42 @@ hdw <- hdw %>% separate(redcap_event_name, c("visit","person_type"), sep = "_arm
 #Test 123
 #This might be working now just confirming unsure if this is the best practice 
 ```
+
+
+
+```{r}
+data$race
+
+View(data)
+races <- data
+races <- races %>% mutate(whiteNH = ifelse(race___01==1, "white non-hispanic", NA), blackNH = ifelse(race___02==1, "black non-hispanic", NA), whiteH = ifelse(race___03==1, "white hispanic", NA), blackH = ifelse(race___04==1, "black hispanic", NA), asian = ifelse(race___05==1, "asian", NA), AIAN = ifelse(race___06==1, "AIAN", NA), NHPI = ifelse(race___07==1, "NHPI", NA), race_refuse = ifelse(race___77==1, "refused", NA), race_other = ifelse(race___97==1, "other", NA), race_unk = ifelse(race___99==1, "don't know", NA))
+
+table(races$race___01)
+
+
+#coalesced function
+races <- races %>% mutate(race = coalesce(whiteNH, blackNH, whiteH, blackH, asian, AIAN, NHPI, race_refuse, race_other, race_unk))
+
+table(data$race___01, useNA="always")
+
+
+races <- data %>% select(contains("race", ignore.case = TRUE))
+colnames(races)
+table(races$race, useNA="always")
+
+
+# 1) filter to only include baseline for both community and dairy (check to make sure not in follow up and removes NAs) 
+# make a table to see what observations are under "race_other" to see if you need to include 
+# 2) coalesce race___01 with race_v3___01 and so that you are also including the community members (name variables race_01)
+# 2) change values in mutate function above to be the new coalesced variable (so that you have community and dairy workers together again)
+# 3) group_by using the sex/gender variable to make a table (don't forget to use useNA="always")
+races <- mutate
+
+```
+
+df %>%  mutate(across(everything(), as.integer), new_race = as.integer(apply(across(everything()), 1, which.max)), new_race_sum = apply(across(starts_with("hhm")), 1, function(x) {sum(x > 0, na.rm = TRUE)}), new_race = case_when(new_race_sum == 0 ~ NA_integer_, new_race_sum == 1 ~ new_race, new_race_sum  > 1 ~ 99L)) %>% select(-new_race_sum)
+
+
+
+
 
