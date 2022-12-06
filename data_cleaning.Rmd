@@ -31,10 +31,10 @@ pacman::p_load(dplyr, tidyr, janitor, ggplot2, readr, tidyverse, lubridate, nani
 
 ```{r}
 # Reading in data and labels
-data <- read.csv("Z:/unrestricted/Center Projects/Healthy Dairy Worker/Data and Analysis/Data/HealthyDairyWorkers_DATA_2022-10-12_1152.csv")
+data <- read.csv("/projects/prlab/unrestricted/Center Projects/Healthy Dairy Worker/Data and Analysis/Data/HealthyDairyWorkers_DATA_2022-10-12_1152.csv")
 data <- as.data.frame(data)
 
-labels <- read.csv("Z:/unrestricted/Center Projects/Healthy Dairy Worker/Data and Analysis/Data/HealthyDairyWorkers_DATA_LABELS_2022-10-10.csv")
+labels <- read.csv("/projects/prlab/unrestricted/Center Projects/Healthy Dairy Worker/Data and Analysis/Data/HealthyDairyWorkers_DATA_LABELS_2022-10-10.csv")
 ```
 
 
@@ -177,6 +177,6 @@ hdw <- hdw %>% separate(redcap_event_name, c("visit","person_type"), sep = "_arm
 
 ```{r}
 # testing changes
-
+#trying to see if I can see changes 
 ```
 
