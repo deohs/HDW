@@ -27,7 +27,8 @@ if (!require(pacman)) install.packages('pacman', repos = 'https://cloud.r-projec
 pacman::p_load(dplyr, tidyr, janitor, ggplot2, readr, tidyverse, lubridate, naniar, Hmisc)
 ```
 
-
+## Moving forward if using non-UW related computer, first log in to the Big-EP Edge Client VPN, using netid and then proceed to change file path accordingly. 
+## it should say read.csv("/projects/prlab/unrestricted/")
 
 ```{r}
 # Reading in data and labels
