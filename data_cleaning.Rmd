@@ -338,6 +338,8 @@ table(data$race___01)
 
 
 
+
+
 ```{r}
 data$race
 
@@ -366,6 +368,8 @@ table(races$race, useNA="always")
 # 3) group_by using the sex/gender variable to make a table (don't forget to use useNA="always")
 #races <- mutate
 
+
+
 datajorge<-subset(data, str_detect(redcap_event_name, "baseline"))
 table(datajorge$gender)
 table(datajorge$gender_other)
@@ -381,12 +385,34 @@ datajorge <- races %>% mutate(race_01 = coalesce(race___01,race_v3___01),
                                race_77 = coalesce(race___77,race_v3___77),
                                race_97 = coalesce(race___97,race_v3___97),
                                race_99 = coalesce(race___99,race_v3___99))
-datajorge %>% mutate(whiteNH = ifelse(race_01==1, "white non-hispanic", NA), blackNH = ifelse(race_02==1, "black non-hispanic", NA), whiteH = ifelse(race_03==1, "white hispanic", NA), blackH = ifelse(race_04==1, "black hispanic", NA), asian = ifelse(race_05==1, "asian", NA), AIAN = ifelse(race_06==1, "AIAN", NA), NHPI = ifelse(race_07==1, "NHPI", NA), race_refuse = ifelse(race_77==1, "refused", NA), race_other = ifelse(race_97==1, "other", NA), race_unk = ifelse(race_99==1, "don't know", NA))
+
+
+datajorge <- datajorge %>% mutate(whiteNH = ifelse(race_01==1, "white non-hispanic", NA),
+                                  blackNH = ifelse(race_02==1, "black non-hispanic", NA),
+                                  whiteH = ifelse(race_03==1, "white hispanic", NA),
+                                  blackH = ifelse(race_04==1, "black hispanic", NA),
+                                  asian = ifelse(race_05==1, "asian", NA),
+                                  AIAN = ifelse(race_06==1, "AIAN", NA),
+                                  NHPI = ifelse(race_07==1, "NHPI", NA),
+                                  race_refuse = ifelse(race_77==1, "refused", NA),
+                                  race_other = ifelse(race_97==1, "other", NA),
+                                  race_unk = ifelse(race_99==1, "don't know", NA))
+
+datajorge <- datajorge %>% mutate(all_race = coalesce(whiteNH, blackNH, whiteH, blackH, asian, AIAN, NHPI, race_refuse, race_other, race_unk))
+
+table(datajorge$all_race, useNA="always")
+
+
+datajorge <- datajorge %>% group_by()
+
+#1) coalesce all the gender variables with the different versions(check for gender_other having data if not then ignore)
+#2) group_by 
+
 
 table(datajorge$gender)
 table(datajorge$gender_v3)
 table(datajorge$gender_other_v2, useNA= "always")
-table(datajorge$gender_other_v3, useNA= "always")
+table(datajorge$gender_other, useNA= "always")
 table(datajorge$gender_other_v3, useNA= "always")
 table(datajorge$gender_other, useNA= "always")
 
