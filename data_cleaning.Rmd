@@ -43,7 +43,6 @@ labels <- read.csv("/projects/prlab/unrestricted/Center Projects/Healthy Dairy W
 data <- replace_with_na_all(data=data, condition=~.x == "")
 data <- as.data.frame(data)
 
-# Delete empty observations from the dataset (record_id= 96 and check for others)
 ```
 
 
@@ -58,9 +57,19 @@ data <- as.data.frame(data)
 data <- data %>% mutate(identifier = coalesce(id_number, id_number_v2, id_number_v3))
 
 
+# Delete completely empty observations (record_id = 96 and 99)
+data <- data %>% filter(record_id!=96 & record_id!=97 & record_id!=98 & record_id!=99) #96 and 99 were blank:97 and 98 only had ID number with no data
+
+# Delete other record ID
+data <- data %>% filter(record_id!=81) #duplicate data for ID S200 for month 12 only. Record ID C32 is the more complete of the records for this person. This person switched between dairy and community arms (held different jobs throughout)
+data <- data %>% filter(record_id!=72) #contained duplicate information for S125 that was already in S125's record
+data <- data %>% filter(record_id!=108) #almost completely empty except duplicate information in specimen collection forms (110 is complete)
+
+
 # Fix values that were spelled incorrectly or did not have the full identifier string
 data$identifier <- replace(data$identifier, data$identifier=="DHW-D01-S05", "HDW-D01-S05")
-data$identifier <- replace(data$identifier, data$identifier=="S123", "HDW-C02-S123") #NEED TO CHECK REDCAP FOR ALL BELOW make sure there aren't duplicates of the numbers elsewhere in the data
+data$identifier <- replace(data$identifier, data$identifier=="HWD-D02-S07", "HDW-D02-S07")
+data$identifier <- replace(data$identifier, data$identifier=="S123", "HDW-C02-S123") 
 data$identifier <- replace(data$identifier, data$identifier=="23", "HDW-D01-S23")
 data$identifier <- replace(data$identifier, data$identifier=="108", "HDW-C02-S108")
 data$identifier <- replace(data$identifier, data$identifier=="111", "HDW-C02-S111")
@@ -91,7 +100,7 @@ data$identifier_records <- replace(data$identifier_records, data$identifier_reco
 data$identifier_records <- replace(data$identifier_records, data$identifier_records=="32", "HDW-D02-S200")
 data$identifier_records <- replace(data$identifier_records, data$identifier_records=="41", "HDW-D01-S201")
 data$identifier_records <- replace(data$identifier_records, data$identifier_records=="50", "HDW-D03-S32")
-data$identifier_records <- replace(data$identifier_records, data$identifier_records=="76", " HDW-C02-S131")
+data$identifier_records <- replace(data$identifier_records, data$identifier_records=="76", "HDW-C02-S131")
 data$identifier_records <- replace(data$identifier_records, data$identifier_records=="77", "HDW-C02-S130")
 data$identifier_records <- replace(data$identifier_records, data$identifier_records=="79", "HDW-C02-S112")
 data$identifier_records <- replace(data$identifier_records, data$identifier_records=="81", "HDW-D02-S200")
@@ -102,6 +111,7 @@ data$identifier_records <- replace(data$identifier_records, data$identifier_reco
 data$identifier_records <- replace(data$identifier_records, data$identifier_records=="92", "HDW-C02-S143")
 data$identifier_records <- replace(data$identifier_records, data$identifier_records=="94", "HDW-C02-S141")
 data$identifier_records <- replace(data$identifier_records, data$identifier_records=="95", "HDW-C02-S143")
+
 #data$identifier_records <- replace(data$identifier_records, data$identifier_records=="96", "") # NO DATA REMOVE FROM DATA SET
 #data$identifier_records <- replace(data$identifier_records, data$identifier_records=="97", "") # NO DATA REMOVE FROM DATA SET
 #data$identifier_records <- replace(data$identifier_records, data$identifier_records=="98", "") # NO DATA REMOVE FROM DATA SET
@@ -121,19 +131,158 @@ data$identifier <- data$identifier_records
 
 
 
+
+
+```{r}
+# Fix FILL THIS IN WHEN DONE
+
+
+data$nasal_id<- replace(data$nasal_id, data$nasal_id=="XHDW-D01-S01", "HDW-D01-S01")
+data$spiro_id<- replace(data$spiro_id, data$spiro_id=="HDW-C01-S01", "HDW-D01-S01")
+data$nasal_id<- replace(data$nasal_id, data$nasal_id=="HDW-C01-S01", "HDW-D01-S01")
+data$serum_id<- replace(data$serum_id, data$serum_id=="HDW-C01-S01", "HDW-D01-S01")
+data$eno_id<- replace(data$eno_id, data$eno_id=="HDW-D01-S09", "HDW-D02-S09")
+data$spiro_id<- replace(data$spiro_id, data$spiro_id=="HDW-D01-S09", "HDW-D02-S09")
+data$serum_id<- replace(data$serum_id, data$serum_id=="HDW-D01-S09", "HDW-D02-S09")
+data$bp_id<- replace(data$bp_id, data$bp_id=="HDW-D01-S09", "HDW-D02-S09")
+
+# data$serum_sample_id <- replace(data$serum_sample_id, data$serum_sample_id=="HDW-D02-S09", "HDW-D02-S109") #CHECK
+# data$serum_id <- replace(data$serum_id, data$serum_id=="HDW-D02-S09", "HDW-D02-S109") # CHECK
+data$nasal_id <- replace(data$nasal_id, data$nasal_id==" HDW-D02", "HDW-D02-S11")
+data$eno_id <- replace(data$eno_id, data$eno_id==" HDW-D01-S13", "HDW-D02-S13")
+data$nasal_id <- replace(data$nasal_id, data$nasal_id==" HDW-D01-S13", "HDW-D02-S13")
+data$eno_id <- replace(data$eno_id, data$eno_id==" HWD-D02-S07", "HDW-D02-S07")
+data$spiro_id <- replace(data$spiro_id, data$spiro_id==" HWD-D02_S07", "HDW-D02-S07")
+
+
+
+
+# data$serum_sample_id <- replace(data$serum_sample_id, data$serum_sample_id=="S213", "HDW-D05-S213")
+# data$nasal_sample_id <- replace(data$nasal_sample_id, data$nasal_sample_id=="212", "HDW-D05-S212")
+# data$fecal_id <- replace(data$fecal_id, data$fecal_id==" HDW-D05-S212", "HDW-D05-S212")
+# data$nasal_sample_id <- replace(data$nasal_sample_id, data$nasal_sample_id=="S210", "HDW-D05-S210")
+# data$eno_id <- replace(data$eno_id, data$eno_id=="HDW-D05", "HDW-D05-S210")
+# data$spiro_id <- replace(data$spiro_id, data$spiro_id=="HDW-D04-S211", "HDW-D05-S211")
+# data$nasal_sample_id <- replace(data$nasal_sample_id, data$nasal_sample_id=="209", "HDW-D02-S209")
+# data$spiro_id <- replace(data$spiro_id, data$spiro_id=="209", "HDW-D02-S209")
+# data$eno_id <- replace(data$eno_id, data$eno_id=="209", "HDW-D02-S209")
+# data$serum_sample_id <- replace(data$serum_sample_id, data$serum_sample_id=="S205", "HDW-D04-S205")
+# data$serum_sample_id <- replace(data$serum_sample_id, data$serum_sample_id=="S213", "HDW-D05-S213")
+# data$nasal_id <- replace(data$nasal_id, data$nasal_id=="S141", "HDW-C02-S141")
+# data$spiro_id <- replace(data$spiro_id, data$spiro_id=="Hdw-c02-s140", "HDW-C02-S140")
+# data$eno_id <- replace(data$eno_id, data$eno_id=="Hdw-c02-s140", "HDW-C02-S140")
+# data$nasal_sample_id <- replace(data$nasal_sample_id, data$nasal_sample_id=="143", "HDW-C02-S143")
+# data$spiro_id <- replace(data$spiro_id, data$spiro_id=="Hdw-c02-s140", "HDW-C02-S140")
+# data$nasal_id <- replace(data$nasal_id, data$nasal_id=="Hdw-c02-s140", "HDW-C02-S140")
+# data$serum_sample_id <- replace(data$serum_sample_id, data$serum_sample_id=="S317", "HDW-C02-S137")
+# data$nasal_sample_id <- replace(data$nasal_sample_id, data$nasal_sample_id=="S317", "HDW-C02-S137")
+# data$nasal_id <- replace(data$nasal_id, data$nasal_id=="HDW-C01-S137", "HDW-C02-S137")
+# data$spiro_id <- replace(data$spiro_id, data$spiro_id=="HDW-C02-s137", "HDW-C02-S137")
+# data$nasal_sample_id <- replace(data$nasal_sample_id, data$nasal_sample_id=="139", "HDW-C02-S139")
+# data$serum_sample_id <- replace(data$serum_sample_id, data$serum_sample_id=="139", "HDW-C02-S139")
+# data$spiro_id <- replace(data$spiro_id, data$spiro_id=="134", "HDW-C01-S134")
+# data$eno_id <- replace(data$eno_id, data$eno_id=="134", "HDW-C01-S134")
+# data$serum_sample_id <- replace(data$serum_sample_id, data$serum_sample_id=="133", "HDW-C02-S133")
+# data$nasal_sample_id <- replace(data$nasal_sample_id, data$nasal_sample_id=="133", "HDW-C02-S133")
+# data$nasal_id <- replace(data$nasal_id, data$nasal_id=="HDW-C02 -S133", "HDW-C02-S133")
+# data$eno_id <- replace(data$eno_id, data$eno_id=="HDW-C02-133", "HDW-C02-S133")
+# data$fecal_id <- replace(data$fecal_id, data$fecal_id=="HDW-C02-136", "HDW-C02-S136")
+# data$bp_id <- replace(data$bp_id, data$bp_id=="HDW-C01-S135", "HDW-C02-S135")
+# data$fecal_id <- replace(data$fecal_id, data$fecal_id=="HDW-C01-S135", "HDW-C02-S135")
+# data$serum_id <- replace(data$serum_id, data$serum_id=="HDW-C01-S135", "HDW-C02-S135")
+# data$nasal_id <- replace(data$nasal_id, data$nasal_id=="HDW-C01-S135", "HDW-C02-S135")
+# data$spiro_id <- replace(data$spiro_id, data$spiro_id=="HDW-C021-S135", "HDW-C02-S135")
+# data$eno_id <- replace(data$eno_id, data$eno_id=="HDW-C021-S135", "HDW-C02-S135")
+# data$nasal_id <- replace(data$nasal_id, data$nasal_id=="HDW-D05-S212", "HDW-D05-S212")
+# 
+# 
+
+
+
+# 
+# data$serum_id <- replace(data$serum_id, data$serum_id=="HDW-C02-S139", "HDW-D05-S213")
+# 
+# 
+# data$fecal_id <- replace(data$fecal_id, data$fecal_id==" HDW-C01-102", "HDW-C01-S102")
+# data$bp_id <- replace(data$bp_id, data$bp_id==" HDW-C01-102", "HDW-C01-S102")
+# data$eno_id <- replace(data$eno_id, data$eno_id=="S111", "HDW-C02-S111")
+# data$spiro_id <- replace(data$spiro_id, data$spiro_id=="S111", "HDW-C02-S111")
+# data$nasal_sample_id <- replace(data$nasal_sample_id, data$nasal_sample_id=="111", "HDW-C02-S111")
+# data$serum_sample_id <- replace(data$serum_sample_id, data$serum_sample_id=="111", "HDW-CO2-S111")
+# data$spiro_id <- replace(data$spiro_id, data$spiro_id=="108", "HDW-C02-S108")
+# data$bp_id <- replace(data$bp_id, data$bp_id=="HDW-CO2-S113", "HDW-C02-S113")
+# data$eno_id <- replace(data$eno_id, data$eno_id=="113", "HDW-C02-S113")
+# data$spiro_id <- replace(data$spiro_id, data$spiro_id=="113", "HDW-C02-S113")
+# data$nasal_id <- replace(data$nasal_id, data$nasal_id=="113", "HDW-C02-S113")
+# data$serum_id <- replace(data$serum_id, data$serum_id=="113", "HDW-C02-S113")
+# data$fecal_id <- replace(data$fecall_id, data$fecal_id=="113", "HDW-C02-S113")
+# data$nasal_sample_id <- replace(data$nasal_sample_id, data$nasal_sample_id=="113", "HDW-C02-S113")
+# data$serum_sample_id <- replace(data$serum_sample_id, data$serum_sample_id=="113", "HDW-C02-S113")
+# data$bp_id <- replace(data$bp_id, data$bp_id=="113", "HDW-C02-S113")
+# data$serum_sample_id <- replace(data$serum_sample_id, data$serum_sample_id=="18", "HDW-D02-S18")
+# data$eno_id <- replace(data$eno_id, data$eno_id=="23", "HDW-D01-S23")
+# data$spiro_id <- replace(data$spiro_id, data$spiro_id=="23", "HDW-D01-S23")
+# data$serum_sample_id <- replace(data$serum_sample_id, data$serum_sample_id=="26", "HDW-D03-S26")
+# data$spiro_id <- replace(data$spiro_id, data$spiro_id=="32", "HDW-D03-S32")
+# data$nasal_sample_id <- replace(data$nasal_sample_id, data$nasal_sample_id=="32", "HDW-D03-S32")
+# data$fecal_id <- replace(data$fecal_id, data$fecal_id==" HSW-D03-S34", "HDW-D03-S34")
+# data$fecal_id <- replace(data$fecal_id, data$fecal_id==" HSW-D03-S235", "HDW-D03-S235")
+# data$eno_id <- replace(data$eno_id, data$eno_id=="HDW-D0", "HDW-D03-S136")
+# data$nasal_id <- replace(data$nasal_id, data$nasal_id=="HDW-?03-S37", "HDW-D03-S37")
+# data$nasal_sample_id <- replace(data$nasal_sample_id, data$nasal_sample_id=="131", "HDW-C02-S131")
+# data$serum_sample_id <- replace(data$serum_sample_id, data$serum_sample_id=="131", "HDW-C02-S131")
+# data$serum_sample_id <- replace(data$serum_sample_id, data$serum_sample_id=="143", "HDW-C02-S143")
+# data$serum_sample_id <- replace(data$serum_sample_id, data$serum_sample_id=="S137", "HDW-C02-S137")
+# data$nasal_sample_id <- replace(data$nasal_sample_id, data$nasal_sample_id=="S137", "HDW-C02-S137")
+# data$serum_sample_id <- replace(data$serum_sample_id, data$serum_sample_id=="S123", "HDW-C02-S123")
+# data$nasal_sample_id <- replace(data$nasal_sample_id, data$nasal_sample_id=="S123", "HDW-C02-S123")
+# data$serum_sample_id <- replace(data$serum_sample_id, data$serum_sample_id=="S122", "HDW-C02-S122")
+# data$nasal_sample_id <- replace(data$nasal_sample_id, data$nasal_sample_id=="S122", "HDW-C02-S122")
+# data$nasal_sample_id <- replace(data$nasal_sample_id, data$nasal_sample_id=="S118", "HDW-C02-S118")
+# data$eno_id <- replace(data$eno_id, data$eno_id=="S118", "HDW-C02-S118")
+# data$serum_sample_id <- replace(data$serum_sample_id, data$serum_sample_id=="32", "HDW-D03-S32")
+# data$serum_sample_id <- replace(data$serum_sample_id, data$serum_sample_id=="S213", "HDW-D05-S213")
+
+# data$serum_sample_id <- replace(data$serum_sample_id, data$serum_sample_id=="HDW-CO2-S111", "HDW-C02-S111")
+# data$serum_sample_id <- replace(data$serum_sample_id, data$serum_sample_id=="205", "HDW-D04-S205")
+# data$eno_id <- replace(data$eno_id, data$eno_id=="Hdw-c02-S140", "HDW-C02-S140")
+# data$spiro_id <- replace(data$spiro_id, data$spiro_id=="HDW-C02-S10", "HDW-C02-S130")
+# data$nasal_id <- replace(data$nasal_id, data$nasal_id=="HDW-D02", "HDW-D02_S11")
+
+# data$serum_sample_id <- replace(data$serum_sample_id, data$serum_sample_id=="S213", "HDW-D05-S213")
+# 
+data <- replace_with_na_all(data=data, condition=~.x == "Pablo") #changing all "Pablo" observations in id variables to be NA
+
+
+
+
+# data$spiro_id <- replace(data$spiro_id, data$spiro_id=="HDW-D05-S212", "HDW-D05-S212")
+# data$eno_id <- replace(data$eno_id, data$eno_id==" HDW-D05-S212", "HDW-D05-S212")
+# data$fecal_id <- replace(data$fecal_id, data$fecal_id=="HDW-D05-S212", "HDW-D05-S212")
+# data$serum_id <- replace(data$serum_id, data$serum_id=="S213", "HDW-D05-S213")
+# data$serum_sample_id <- replace(data$serum_sample_id, data$serum_sample_id=="S213", "HDW-D05-S213")
+# data$nasal_id <- replace(data$nasal_id, data$nasal_id=="HDW-D05-S212", "HDW-D05-S212")
+# data$nasal_sample_id <- replace(data$nasal_sample_id, data$nasal_sample_id=="212", "HDW-D05-S212")
+
+
+```
+
+
+
+
 ```{r}
 # Data checks for specimens collected and the corresponding identifiers
 
-ids<- c("redcap_event_name", "identifier", "eno_id", "spiro_id", "nasal_id", "nasal_sample_id", "serum_id", "serum_sample_id", "fecal_id", "bp_id")
-
-interest <- c("redcap_event_name", "identifier", "eno_id", "spiro_id", "nasal_id", 
-             "nasal_sample_id", "serum_id", "serum_sample_id", "fecal_id", "bp_id", "eno_date","spiro_date", 
-             "nasal_date", "nasal_transport_date","serum_date", "serum_transport_date", "fecal_date",
-             "eno_notes","spiro_notes", "nasal_notes", "serum_notes", "fecal_notes")
-
-
-temp <- data %>% select(all_of(ids))
-View(temp)
+# ids<- c("redcap_event_name", "identifier", "RedCap_id", "eno_id", "spiro_id", "nasal_id", "nasal_sample_id", "serum_id", "serum_sample_id", "fecal_id", "bp_id")
+# 
+# interest <- c("redcap_event_name", "identifier", "eno_id", "spiro_id", "nasal_id", 
+#              "nasal_sample_id", "serum_id", "serum_sample_id", "fecal_id", "bp_id", "eno_date","spiro_date", 
+#              "nasal_date", "nasal_transport_date","serum_date", "serum_transport_date", "fecal_date",
+#              "eno_notes","spiro_notes", "nasal_notes", "serum_notes", "fecal_notes")
+# 
+# 
+# temp <- data %>% select(all_of(ids))
+# View(temp)
 
 # Loop to determine which IDs do not match for samples collected that are attached to the record
 
@@ -168,6 +317,8 @@ for (obs in 1:length(data)) {
 ```
 
 
+
+
 ```{r}
 # Make variable that is 1-6 for visit number (use casewhen function)
 hdw <- hdw %>% separate(redcap_event_name, c("visit","person_type"), sep = "_arm_")
@@ -177,8 +328,50 @@ hdw <- hdw %>% separate(redcap_event_name, c("visit","person_type"), sep = "_arm
 
 ```{r}
 # testing changes
+<<<<<<< HEAD
 #trying to see if I can see changes 
 table(data$race___01)
+=======
+#Test 123
+#This might be working now just confirming unsure if this is the best practice 
+```
+
+
+
+```{r}
+data$race
+
+View(data)
+races <- data
+races <- races %>% mutate(whiteNH = ifelse(race___01==1, "white non-hispanic", NA), blackNH = ifelse(race___02==1, "black non-hispanic", NA), whiteH = ifelse(race___03==1, "white hispanic", NA), blackH = ifelse(race___04==1, "black hispanic", NA), asian = ifelse(race___05==1, "asian", NA), AIAN = ifelse(race___06==1, "AIAN", NA), NHPI = ifelse(race___07==1, "NHPI", NA), race_refuse = ifelse(race___77==1, "refused", NA), race_other = ifelse(race___97==1, "other", NA), race_unk = ifelse(race___99==1, "don't know", NA))
+
+table(races$race___01)
+
+
+#coalesced function
+races <- races %>% mutate(race = coalesce(whiteNH, blackNH, whiteH, blackH, asian, AIAN, NHPI, race_refuse, race_other, race_unk))
+
+table(data$race___01, useNA="always")
+
+
+races <- data %>% select(contains("race", ignore.case = TRUE))
+colnames(races)
+table(races$race, useNA="always")
+
+
+# 1) filter to only include baseline for both community and dairy (check to make sure not in follow up and removes NAs) 
+# make a table to see what observations are under "race_other" to see if you need to include 
+# 2) coalesce race___01 with race_v3___01 and so that you are also including the community members (name variables race_01)
+# 2) change values in mutate function above to be the new coalesced variable (so that you have community and dairy workers together again)
+# 3) group_by using the sex/gender variable to make a table (don't forget to use useNA="always")
+races <- mutate
+>>>>>>> 7e42b53df0c1032b1b6c264a55ca378d5268768e
 
 ```
+
+df %>%  mutate(across(everything(), as.integer), new_race = as.integer(apply(across(everything()), 1, which.max)), new_race_sum = apply(across(starts_with("hhm")), 1, function(x) {sum(x > 0, na.rm = TRUE)}), new_race = case_when(new_race_sum == 0 ~ NA_integer_, new_race_sum == 1 ~ new_race, new_race_sum  > 1 ~ 99L)) %>% select(-new_race_sum)
+
+
+
+
 
