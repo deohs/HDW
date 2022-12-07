@@ -364,8 +364,33 @@ table(races$race, useNA="always")
 # 2) coalesce race___01 with race_v3___01 and so that you are also including the community members (name variables race_01)
 # 2) change values in mutate function above to be the new coalesced variable (so that you have community and dairy workers together again)
 # 3) group_by using the sex/gender variable to make a table (don't forget to use useNA="always")
-races <- mutate
->>>>>>> 7e42b53df0c1032b1b6c264a55ca378d5268768e
+#races <- mutate
+
+datajorge<-subset(data, str_detect(redcap_event_name, "baseline"))
+table(datajorge$gender)
+table(datajorge$gender_other)
+
+table(datajorge$race_v3___01)
+racesjorge <- races %>% mutate(race_01 = coalesce(race___01,race_v3___01),
+                               race_02 = coalesce(race___02,race_v3___02),
+                               race_03 = coalesce(race___03,race_v3___03),
+                               race_04 = coalesce(race___04,race_v3___04),
+                               race_05 = coalesce(race___05,race_v3___05), 
+                               race_06 = coalesce(race___06,race_v3___06), 
+                               race_07 = coalesce(race___07,race_v3___07),
+                               race_77 = coalesce(race___77,race_v3___77),
+                               race_97 = coalesce(race___97,race_v3___97),
+                               race_99 = coalesce(race___99,race_v3___99))
+ racesjorge %>% mutate(whiteNH = ifelse(race_01==1, "white non-hispanic", NA), blackNH = ifelse(race_02==1, "black non-hispanic", NA), whiteH = ifelse(race_03==1, "white hispanic", NA), blackH = ifelse(race_04==1, "black hispanic", NA), asian = ifelse(race_05==1, "asian", NA), AIAN = ifelse(race_06==1, "AIAN", NA), NHPI = ifelse(race_07==1, "NHPI", NA), race_refuse = ifelse(race_77==1, "refused", NA), race_other = ifelse(race_97==1, "other", NA), race_unk = ifelse(race_99==1, "don't know", NA))
+
+table(datajorge$gender)
+table(datajorge$gender_other)
+
+#Finished here
+
+#racesjorge 
+
+
 
 ```
 
