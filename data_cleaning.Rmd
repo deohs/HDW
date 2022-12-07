@@ -371,7 +371,7 @@ table(datajorge$gender)
 table(datajorge$gender_other)
 
 table(datajorge$race_v3___01)
-racesjorge <- races %>% mutate(race_01 = coalesce(race___01,race_v3___01),
+datajorge <- races %>% mutate(race_01 = coalesce(race___01,race_v3___01),
                                race_02 = coalesce(race___02,race_v3___02),
                                race_03 = coalesce(race___03,race_v3___03),
                                race_04 = coalesce(race___04,race_v3___04),
@@ -381,14 +381,21 @@ racesjorge <- races %>% mutate(race_01 = coalesce(race___01,race_v3___01),
                                race_77 = coalesce(race___77,race_v3___77),
                                race_97 = coalesce(race___97,race_v3___97),
                                race_99 = coalesce(race___99,race_v3___99))
- racesjorge %>% mutate(whiteNH = ifelse(race_01==1, "white non-hispanic", NA), blackNH = ifelse(race_02==1, "black non-hispanic", NA), whiteH = ifelse(race_03==1, "white hispanic", NA), blackH = ifelse(race_04==1, "black hispanic", NA), asian = ifelse(race_05==1, "asian", NA), AIAN = ifelse(race_06==1, "AIAN", NA), NHPI = ifelse(race_07==1, "NHPI", NA), race_refuse = ifelse(race_77==1, "refused", NA), race_other = ifelse(race_97==1, "other", NA), race_unk = ifelse(race_99==1, "don't know", NA))
+datajorge %>% mutate(whiteNH = ifelse(race_01==1, "white non-hispanic", NA), blackNH = ifelse(race_02==1, "black non-hispanic", NA), whiteH = ifelse(race_03==1, "white hispanic", NA), blackH = ifelse(race_04==1, "black hispanic", NA), asian = ifelse(race_05==1, "asian", NA), AIAN = ifelse(race_06==1, "AIAN", NA), NHPI = ifelse(race_07==1, "NHPI", NA), race_refuse = ifelse(race_77==1, "refused", NA), race_other = ifelse(race_97==1, "other", NA), race_unk = ifelse(race_99==1, "don't know", NA))
 
 table(datajorge$gender)
-table(datajorge$gender_other)
+table(datajorge$gender_v3)
+table(datajorge$gender_other_v2, useNA= "always")
+table(datajorge$gender_other_v3, useNA= "always")
+table(datajorge$gender_other_v3, useNA= "always")
+table(datajorge$gender_other, useNA= "always")
+
+datajorge<-subset(data, str_detect(redcap_event_name, "baseline"))
+
 
 #Finished here
 
-#racesjorge 
+#racesjorge here
 
 
 
