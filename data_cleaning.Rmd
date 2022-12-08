@@ -3951,25 +3951,32 @@ table(datajorge$all_race, useNA="always")
 #Old code do not think it is needed anymore 
 #genderjorge <- datajorge %>% select(contains("gender", ignore.case = TRUE))
 
-table(genderjorge$gender, useNA= "always")
-table(genderjorge$gender_v3, useNA= "always")
-table(genderjorge$gender_other_v2, useNA= "always")
-table(genderjorge$gender_other, useNA= "always")
-table(genderjorge$gender_other_v3, useNA= "always")
 
 #maybe here i should do if else 
 genderjorge$gender_other <- as.integer(gender$gender_other)
 
 genderjorge <- gender%>% mutate(all_gender = coalesce(gender, gender_v3), 
-                                 all_chrgender= coalesce(gender_other, gender_other_v2, gender_other_v3))
+                                all_chrgender= coalesce(gender_other, gender_other_v2, gender_other_v3))
+
+table(genderjorge$all_chrgender)
 #changed all_chrgender to integer to coalesce 
-genderjorge$genderfix <- as.integer(genderjorge$all_chrgender == "male")
+genderjorge <- genderjorge %>% mutate(genderfix = case_when(all_chrgender=="Women" ~ 2,
+                                                           all_chrgender== "Female" ~2,
+                                                            all_chrgender=="Male" ~ 1,
+                                                            all_chrgender=="IP" ~ 3,
+                                                            all_chrgender=="RL" ~ 3,
+                                                            all_chrgender=="SF" ~ 3))
+table(genderjorge$genderfix)
+class(genderjorge$genderfix)
 
 #create new variable called genderyes
-genderjorge <- genderjorge %>% mutate(genderyes = coalesce(all_gender, genderfix)) 
+genderjorge <- genderjorge %>% mutate(genderyesfix = coalesce(all_gender, genderfix)) 
 
 
+table(genderjorge$genderyesfix, useNA="always")
 # Crosstab next 
+library(gmodels)
+table(genderjorge$genderyesfix, datajorge$all_race)
 
 
 
@@ -3981,4 +3988,92 @@ df %>%  mutate(across(everything(), as.integer), new_race = as.integer(apply(acr
 
 
 
+
+```{r}
+dat <- data
+
+dat <- dat %>% mutate(whiteNH = ifelse(race___01==1, "white non-hispanic", NA), blackNH = ifelse(race___02==1, "black non-hispanic", NA), whiteH = ifelse(race___03==1, "white hispanic", NA), blackH = ifelse(race___04==1, "black hispanic", NA), asian = ifelse(race___05==1, "asian", NA), AIAN = ifelse(race___06==1, "AIAN", NA), NHPI = ifelse(race___07==1, "NHPI", NA), race_refuse = ifelse(race___77==1, "refused", NA), race_other = ifelse(race___97==1, "other", NA), race_unk = ifelse(race___99==1, "don't know", NA))
+
+
+
+#coalesced function
+dat <- dat %>% mutate(race = coalesce(whiteNH, blackNH, whiteH, blackH, asian, AIAN, NHPI, race_refuse, race_other, race_unk))
+
+
+table(dat$race, useNA="always")
+
+
+# 1) filter to only include baseline for both community and dairy (check to make sure not in follow up and removes NAs) 
+# make a table to see what observations are under "race_other" to see if you need to include 
+# 2) coalesce race___01 with race_v3___01 and so that you are also including the community members (name variables race_01)
+# 2) change values in mutate function above to be the new coalesced variable (so that you have community and dairy workers together again)
+# 3) group_by using the sex/gender variable to make a table (don't forget to use useNA="always")
+#races <- mutate
+
+
+dat <- dat %>% mutate(race_01 = coalesce(race___01,race_v3___01),
+                               race_02 = coalesce(race___02,race_v3___02),
+                               race_03 = coalesce(race___03,race_v3___03),
+                               race_04 = coalesce(race___04,race_v3___04),
+                               race_05 = coalesce(race___05,race_v3___05), 
+                               race_06 = coalesce(race___06,race_v3___06), 
+                               race_07 = coalesce(race___07,race_v3___07),
+                               race_77 = coalesce(race___77,race_v3___77),
+                               race_97 = coalesce(race___97,race_v3___97),
+                               race_99 = coalesce(race___99,race_v3___99))
+
+
+dat <- dat %>% mutate(whiteNH = ifelse(race_01==1, "white non-hispanic", NA),
+                                  blackNH = ifelse(race_02==1, "black non-hispanic", NA),
+                                  whiteH = ifelse(race_03==1, "white hispanic", NA),
+                                  blackH = ifelse(race_04==1, "black hispanic", NA),
+                                  asian = ifelse(race_05==1, "asian", NA),
+                                  AIAN = ifelse(race_06==1, "AIAN", NA),
+                                  NHPI = ifelse(race_07==1, "NHPI", NA),
+                                  race_refuse = ifelse(race_77==1, "refused", NA),
+                                  race_other = ifelse(race_97==1, "other", NA),
+                                  race_unk = ifelse(race_99==1, "don't know", NA))
+
+dat <- dat %>% mutate(all_race = coalesce(whiteNH, blackNH, whiteH, blackH, asian, AIAN, NHPI, race_refuse, race_other, race_unk))
+
+table(dat$all_race, useNA="always")
+
+
+
+
+
+#1) coalesce all the gender variables with the different versions (check for gender_other having data, if not then ignore) this should pull baseline and followup for community and just baseline for dairy 
+#2) cross tab race by gender
+#3) firgure out which IDS are not in this table and then pull manually if possible or mark as unknown (ifelse(is.na(gender), print(identifier), print(paste "this ID doesn't have gender", identifier, sep=" "))) 
+#Check output for dups and missings
+
+
+dat <- dat%>% mutate(all_gender = coalesce(gender, gender_v3), 
+                                all_chrgender= coalesce(gender_other, gender_other_v2, gender_other_v3))
+
+table(dat$all_chrgender)
+#changed all_chrgender to integer to coalesce 
+dat <- dat %>% mutate(genderfix = case_when(all_chrgender=="Women" ~ 2,
+                                                           all_chrgender== "Female" ~2,
+                                                            all_chrgender=="Male" ~ 1,
+                                                            all_chrgender=="IP" ~ 3,
+                                                            all_chrgender=="RL" ~ 3,
+                                                            all_chrgender=="SF" ~ 3))
+table(dat$genderfix)
+class(dat$genderfix)
+
+#create new variable called genderyes
+dat <- dat %>% mutate(genderyesfix = coalesce(all_gender, genderfix)) 
+
+
+table(dat$genderyesfix, useNA="always")
+# Crosstab next 
+library(gmodels)
+table(dat$genderyesfix, dat$all_race)
+
+
+gender <- dat %>% select("identifier", "genderyesfix", "all_race")
+View(gender)
+#stopped here 12/8 3:20pm 
+```
 
