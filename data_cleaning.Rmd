@@ -3902,12 +3902,10 @@ table(races$race, useNA="always")
 #races <- mutate
 
 
-table(jorgeraces1$record_id)
-
-
+#Old code dont think it is needed anymore 
 datajorge<-subset(data, str_detect(redcap_event_name, "")
-table(datajorge$gender)
-table(datajorge$gender_other)
+
+
 
 table(datajorge$race_v3___01)
 datajorge <- races %>% mutate(race_01 = coalesce(race___01,race_v3___01),
@@ -3935,39 +3933,32 @@ datajorge <- datajorge %>% mutate(whiteNH = ifelse(race_01==1, "white non-hispan
 
 datajorge <- datajorge %>% mutate(all_race = coalesce(whiteNH, blackNH, whiteH, blackH, asian, AIAN, NHPI, race_refuse, race_other, race_unk))
 
-
 table(datajorge$all_race, useNA="always")
 
 
-#datajorge <- datajorge %>% group_by()
+
+
 
 #1) coalesce all the gender variables with the different versions (check for gender_other having data, if not then ignore) this should pull baseline and followup for community and just baseline for dairy 
 #2) cross tab race by gender
 #3) firgure out which IDS are not in this table and then pull manually if possible or mark as unknown (ifelse(is.na(gender), print(identifier), print(paste "this ID doesn't have gender", identifier, sep=" "))) 
 #Check output for dups and missings
 
-
-table(datajorge$gender)
-table(datajorge$gender_v3)
-table(datajorge$gender_other_v2, useNA= "always")
-table(datajorge$gender_other, useNA= "always")
-table(datajorge$gender_other_v3, useNA= "always")
-table(datajorge$gender_other, useNA= "always")
-
-
 #Night work 12/7
-gender <- data %>% select(contains("gender", ignore.case = TRUE))
+#No longer needed 
+#gender <- data %>% select(contains("gender", ignore.case = TRUE))
 
-table(gender$gender)
-table(gender$gender_v3)
-table(gender$gender_other_v2, useNA= "always")
-table(gender$gender_other, useNA= "always")
-table(gender$gender_other_v3, useNA= "always"
-table(gender$gender_other, useNA= "always"
+#Old code do not think it is needed anymore 
+#genderjorge <- datajorge %>% select(contains("gender", ignore.case = TRUE))
 
+table(genderjorge$gender, useNA= "always")
+table(genderjorge$gender_v3, useNA= "always")
+table(genderjorge$gender_other_v2, useNA= "always")
+table(genderjorge$gender_other, useNA= "always")
+table(genderjorge$gender_other_v3, useNA= "always")
 
 #maybe here i should do if else 
-gender$gender_other <- as.integer(gender$gender_other)
+genderjorge$gender_other <- as.integer(gender$gender_other)
 
 genderjorge <- gender%>% mutate(all_gender = coalesce(gender, gender_v3), 
                                  all_chrgender= coalesce(gender_other, gender_other_v2, gender_other_v3))
