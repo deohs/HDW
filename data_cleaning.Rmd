@@ -24,7 +24,7 @@ rm(list=ls())
 
 if (!require(pacman)) install.packages('pacman', repos = 'https://cloud.r-project.org')
 #REDCap generated code to add labels to all variables, make relevant variables factors, and assign levels
-pacman::p_load(dplyr, tidyr, janitor, ggplot2, readr, tidyverse, lubridate, naniar, Hmisc)
+pacman::p_load(dplyr, tidyr, janitor, ggplot2, readr, tidyverse, lubridate, naniar, Hmisc, gmodels)
 ```
 
 ## Moving forward if using non-UW related computer, first log in to the Big-EP Edge Client VPN, using netid and then proceed to change file path accordingly. 
@@ -3869,139 +3869,11 @@ hdw <- hdw %>% separate(redcap_event_name, c("visit","person_type"), sep = "_arm
 
 
 
-```{r}
-
-table(data$race___01.factor)
-
-
-data$race
-
-View(data)
-races <- data
-races <- races %>% mutate(whiteNH = ifelse(race___01==1, "white non-hispanic", NA), blackNH = ifelse(race___02==1, "black non-hispanic", NA), whiteH = ifelse(race___03==1, "white hispanic", NA), blackH = ifelse(race___04==1, "black hispanic", NA), asian = ifelse(race___05==1, "asian", NA), AIAN = ifelse(race___06==1, "AIAN", NA), NHPI = ifelse(race___07==1, "NHPI", NA), race_refuse = ifelse(race___77==1, "refused", NA), race_other = ifelse(race___97==1, "other", NA), race_unk = ifelse(race___99==1, "don't know", NA))
-
-table(races$race___01)
-
-
-#coalesced function
-races <- races %>% mutate(race = coalesce(whiteNH, blackNH, whiteH, blackH, asian, AIAN, NHPI, race_refuse, race_other, race_unk))
-
-table(data$race___01, useNA="always")
-
-
-races <- data %>% select(contains("race", ignore.case = TRUE))
-colnames(races)
-table(races$race, useNA="always")
-
-
-# 1) filter to only include baseline for both community and dairy (check to make sure not in follow up and removes NAs) 
-# make a table to see what observations are under "race_other" to see if you need to include 
-# 2) coalesce race___01 with race_v3___01 and so that you are also including the community members (name variables race_01)
-# 2) change values in mutate function above to be the new coalesced variable (so that you have community and dairy workers together again)
-# 3) group_by using the sex/gender variable to make a table (don't forget to use useNA="always")
-#races <- mutate
-
-
-#Old code dont think it is needed anymore 
-datajorge<-subset(data, str_detect(redcap_event_name, "")
-
-
-
-table(datajorge$race_v3___01)
-datajorge <- races %>% mutate(race_01 = coalesce(race___01,race_v3___01),
-                               race_02 = coalesce(race___02,race_v3___02),
-                               race_03 = coalesce(race___03,race_v3___03),
-                               race_04 = coalesce(race___04,race_v3___04),
-                               race_05 = coalesce(race___05,race_v3___05), 
-                               race_06 = coalesce(race___06,race_v3___06), 
-                               race_07 = coalesce(race___07,race_v3___07),
-                               race_77 = coalesce(race___77,race_v3___77),
-                               race_97 = coalesce(race___97,race_v3___97),
-                               race_99 = coalesce(race___99,race_v3___99))
-
-
-datajorge <- datajorge %>% mutate(whiteNH = ifelse(race_01==1, "white non-hispanic", NA),
-                                  blackNH = ifelse(race_02==1, "black non-hispanic", NA),
-                                  whiteH = ifelse(race_03==1, "white hispanic", NA),
-                                  blackH = ifelse(race_04==1, "black hispanic", NA),
-                                  asian = ifelse(race_05==1, "asian", NA),
-                                  AIAN = ifelse(race_06==1, "AIAN", NA),
-                                  NHPI = ifelse(race_07==1, "NHPI", NA),
-                                  race_refuse = ifelse(race_77==1, "refused", NA),
-                                  race_other = ifelse(race_97==1, "other", NA),
-                                  race_unk = ifelse(race_99==1, "don't know", NA))
-
-datajorge <- datajorge %>% mutate(all_race = coalesce(whiteNH, blackNH, whiteH, blackH, asian, AIAN, NHPI, race_refuse, race_other, race_unk))
-
-table(datajorge$all_race, useNA="always")
-
-
-
-
-
-#1) coalesce all the gender variables with the different versions (check for gender_other having data, if not then ignore) this should pull baseline and followup for community and just baseline for dairy 
-#2) cross tab race by gender
-#3) firgure out which IDS are not in this table and then pull manually if possible or mark as unknown (ifelse(is.na(gender), print(identifier), print(paste "this ID doesn't have gender", identifier, sep=" "))) 
-#Check output for dups and missings
-
-#Night work 12/7
-#No longer needed 
-#gender <- data %>% select(contains("gender", ignore.case = TRUE))
-
-#Old code do not think it is needed anymore 
-#genderjorge <- datajorge %>% select(contains("gender", ignore.case = TRUE))
-
-
-#maybe here i should do if else 
-genderjorge$gender_other <- as.integer(gender$gender_other)
-
-genderjorge <- gender%>% mutate(all_gender = coalesce(gender, gender_v3), 
-                                all_chrgender= coalesce(gender_other, gender_other_v2, gender_other_v3))
-
-table(genderjorge$all_chrgender)
-#changed all_chrgender to integer to coalesce 
-genderjorge <- genderjorge %>% mutate(genderfix = case_when(all_chrgender=="Women" ~ 2,
-                                                           all_chrgender== "Female" ~2,
-                                                            all_chrgender=="Male" ~ 1,
-                                                            all_chrgender=="IP" ~ 3,
-                                                            all_chrgender=="RL" ~ 3,
-                                                            all_chrgender=="SF" ~ 3))
-table(genderjorge$genderfix)
-class(genderjorge$genderfix)
-
-#create new variable called genderyes
-genderjorge <- genderjorge %>% mutate(genderyesfix = coalesce(all_gender, genderfix)) 
-
-
-table(genderjorge$genderyesfix, useNA="always")
-# Crosstab next 
-library(gmodels)
-table(genderjorge$genderyesfix, datajorge$all_race)
-
-
-
-
-```
-
 df %>%  mutate(across(everything(), as.integer), new_race = as.integer(apply(across(everything()), 1, which.max)), new_race_sum = apply(across(starts_with("hhm")), 1, function(x) {sum(x > 0, na.rm = TRUE)}), new_race = case_when(new_race_sum == 0 ~ NA_integer_, new_race_sum == 1 ~ new_race, new_race_sum  > 1 ~ 99L)) %>% select(-new_race_sum)
-
-
-
 
 
 ```{r}
 dat <- data
-
-dat <- dat %>% mutate(whiteNH = ifelse(race___01==1, "white non-hispanic", NA), blackNH = ifelse(race___02==1, "black non-hispanic", NA), whiteH = ifelse(race___03==1, "white hispanic", NA), blackH = ifelse(race___04==1, "black hispanic", NA), asian = ifelse(race___05==1, "asian", NA), AIAN = ifelse(race___06==1, "AIAN", NA), NHPI = ifelse(race___07==1, "NHPI", NA), race_refuse = ifelse(race___77==1, "refused", NA), race_other = ifelse(race___97==1, "other", NA), race_unk = ifelse(race___99==1, "don't know", NA))
-
-
-
-#coalesced function
-dat <- dat %>% mutate(race = coalesce(whiteNH, blackNH, whiteH, blackH, asian, AIAN, NHPI, race_refuse, race_other, race_unk))
-
-
-table(dat$race, useNA="always")
-
 
 # 1) filter to only include baseline for both community and dairy (check to make sure not in follow up and removes NAs) 
 # make a table to see what observations are under "race_other" to see if you need to include 
@@ -4034,6 +3906,11 @@ dat <- dat %>% mutate(whiteNH = ifelse(race_01==1, "white non-hispanic", NA),
                                   race_other = ifelse(race_97==1, "other", NA),
                                   race_unk = ifelse(race_99==1, "don't know", NA))
 
+
+
+
+
+
 dat <- dat %>% mutate(all_race = coalesce(whiteNH, blackNH, whiteH, blackH, asian, AIAN, NHPI, race_refuse, race_other, race_unk))
 
 table(dat$all_race, useNA="always")
@@ -4048,7 +3925,7 @@ table(dat$all_race, useNA="always")
 #Check output for dups and missings
 
 
-dat <- dat%>% mutate(all_gender = coalesce(gender, gender_v3), 
+dat <- dat %>% mutate(all_gender = coalesce(gender, gender_v3), 
                                 all_chrgender= coalesce(gender_other, gender_other_v2, gender_other_v3))
 
 table(dat$all_chrgender)
@@ -4067,13 +3944,89 @@ dat <- dat %>% mutate(genderyesfix = coalesce(all_gender, genderfix))
 
 
 table(dat$genderyesfix, useNA="always")
-# Crosstab next 
-library(gmodels)
+
 table(dat$genderyesfix, dat$all_race)
 
 
-gender <- dat %>% select("identifier", "genderyesfix", "all_race")
-View(gender)
+#gender <- dat %>% select("identifier", "genderyesfix", "all_race") %>% filter(!is.na(genderyesfix) | !is.na(all_race))
 #stopped here 12/8 3:20pm 
+
+
 ```
+
+
+
+```{r}
+subbed <- c("whiteNH", "blackNH", "whiteH", "blackH", "asian", "AIAN", "NHPI", "race_refuse", "race_other", "race_unk")
+
+for (obs in 1:ncol(dat)) {
+  var <- ""
+  for (col in subbed) {
+    if (!is.na(dat[obs,col])){
+      var <- paste(var, dat[obs,col])}
+  }
+  print(var)
+  print(obs)
+}
+length(dat)
+
+
+```
+
+
+
+
+```{r}
+#variable for dairy vs community member
+
+dat <- dat %>% mutate(dairyWorker = ifelse(grepl("D", dat$identifier), "D", "C"))
+
+
+dat <- dat %>% mutate(event = case_when(redcap_event_name == "baseline_arm_1" ~ 1,
+                                        redcap_event_name == "baseline_arm_2" ~ 1,
+                                        redcap_event_name == "month_3_arm_1" ~ 2,
+                                        redcap_event_name == "month_3_arm_2" ~ 2,
+                                        redcap_event_name == "month_6_arm_1" ~ 3,
+                                        redcap_event_name == "month_6_arm_2" ~ 3,
+                                        redcap_event_name == "month_12_arm_1" ~ 4,
+                                        redcap_event_name == "month_12_arm_2" ~ 4,
+                                        redcap_event_name == "month_24_arm_1" ~ 5,
+                                        redcap_event_name == "month_24_arm_2" ~ 5))
+
+sorted <- dat[order(dat$identifier, dat$event), ]
+
+
+idList <- c("HDW-D01-S02", "HDW-D01-S03", "HDW-D01-S04", "HDW-D01-S05", "HDW-D01-S01", "HDW-D01-S08", "HDW-D02-S09", "HDW-D02-S109", "HDW-D02-S10", "HDW-D02-S11", "HDW-D02-S12", "HDW-C01-S100", "HDW-C01-S101", "HDW-D02-S13", "HDW-D01-S13", "HDW-D02-S07", "HDW-D02-S15", "HDW-D02-S14", "HDW-C01-S102", "HDW-C02-S110", "HDW-C02-S104", "HDW-C02-S111", "HDW-C02-S108", "HDW-C02-S103", "HDW-C02-S105", "HDW-C02-S106", "HDW-C02-S107", "HDW-C02-S112", "HDW-C02-S113", "HDW-D02-S17", "HDW-D02-S18", "HDW-D02-S200", "HDW-D01-S16", "HDW-D01-S22", "HDW-D01-S23", "HDW-D01-S19", "HDW-D01-S20", "HDW-D01-S21", "HDW-D01-S24", "HDW-D01-S201", "HDW-D02-S202", "HDW-D03-S25", "HDW-D03-S26", "HDW-D03-S27", "HDW-D03-S28", "HDW-D03-S29", "HDW-D03-S30", "HDW-D03-S31", "HDW-D03-S32", "HDW-D03-S33", "HDW-D03-S34", "HDW-D03-S35", "HDW-D03-S36", "HDW-D03-S136", "HDW-D03-S37", "HDW-D03-S203", "HDW-C02-S115", "HDW-C02-S116", "HDW-C02-S117", "HDW-C02-S118", "HDW-C02-S125", "HDW-C02-S120", "HDW-C02-S121", "HDW-C02-S122", "HDW-C02-S123", "HDW-C02-S124", "HDW-C02-S126", "HDW-C02-S127", "HDW-C02-S131", "HDW-C02-S130", "HDW-C02-S129", "HDW-C02-S132", "HDW-C02-S128", "HDW-C02-S114", "HDW-C02-S135", "HDW-C02-S136", "HDW-C02-S133", "HDW-C01-S133", "HDW-C02-S134", "HDW-C01-S134", "HDW-C02-S139", "HDW-C02-S137", "HDW-C02-S140", "HDW-C02-S141", "HDW-C02-S143", "HDW-D03-S38", "HDW-D03-S39",  "HDW-D04-S205", "HDW-D04-S206", "HDW-D04-S207", "HDW-D04-S204", "HDW-D04-S208", "HDW-D02-S209", "HDW-D05-S211", "HDW-D05-S210", "HDW-D05-S212", "HDW-D05-S213", "HDW-D02-S214")
+
+onlyOne <- data.frame(matrix(ncol=3, nrow=98))
+colnames(onlyOne) <- c("id", "race", "gender")
+onlyOne$id <- idList
+
+for (obs in 1:nrow(sorted)) {
+  for (n in 1:nrow(onlyOne)) {
+    if (sorted$identifier[obs] == onlyOne$id[n] & !is.na(sorted$race_all[obs]) & is.na(onlyOne$race[n])) {
+      onlyOne$race[n] <- sorted$all_race[obs]
+    }
+    if (sorted$identifier[obs] == onlyOne$id[n] & !is.na(sorted$genderyesfix[obs]) & is.na(onlyOne$gender[n])) {
+      onlyOne$gender[n] <- sorted$genderyesfix[obs]
+    }
+    
+  }
+}
+View(onlyOne)
+install.packages("gmodels")
+library(gmodels)
+table(onlyOne$gender, onlyOne$race)
+onlyOne$gender[is.na(onlyOne$gender)] <- "missing"
+onlyOne$race[onlyOne$race == 3] <- "missing"
+CrossTable(onlyOne$race, onlyOne$gender, missing.include=TRUE, prop.r=FALSE, prop.c=FALSE, prop.t=FALSE, prop.chisq=FALSE)
+```
+
+
+
+
+
+
+
+
 
