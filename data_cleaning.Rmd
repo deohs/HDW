@@ -3586,6 +3586,7 @@ levels(data$bp_and_glucose_complete.factor)=c("Incomplete","Unverified","Complet
 ## cleaning: coalesced all id_number versions into "identifier" and record_id versions into "RedCap_id" so there is one variable containing id_number and record_id, changed "DHW-D01-S05" to be "HDW-D01-S05", filled in the whole identifier for those with only the last numbers, pulled the record_id for those missing id_numbers, matched the record_id to the id_number in RedCap
 ## class: character
 ```{r}
+
 # Create new variable called "identifier" that contains the study id for all participants (combining "id_number", "id_number_v2", "id_number_v3)
 data <- data %>% mutate(identifier = coalesce(id_number, id_number_v2, id_number_v3))
 
@@ -3652,10 +3653,97 @@ data$identifier_records <- replace(data$identifier_records, data$identifier_reco
 #data$identifier_records <- replace(data$identifier_records, data$identifier_records=="99", "") # NO DATA REMOVE FROM DATA SET
 
 
-
 # Rename identifier_records to be identifier
 data$identifier <- data$identifier_records
 
+
+# Adding variables from lab specimens to complete a record 
+
+# Record 30
+mon6_record30 <- data %>% filter(redcap_event_name=="month_6_arm_1" & identifier=="HDW-D02-S17")
+mon12_record30 <- data %>% filter(redcap_event_name=="month_12_arm_1" & identifier=="HDW-D02-S17")
+
+# change the nasal details to the correct record for nasal_location at month 6 and 12
+data[data$identifier=="HDW-D02-S17" & data$redcap_event_name=="month_6_arm_2", "nasal_location"] <- mon6_record30$nasal_location
+data[data$identifier=="HDW-D02-S17" & data$redcap_event_name=="month_12_arm_2", "nasal_location"] <- mon12_record30$nasal_location
+data[data$identifier=="HDW-D02-S17" & data$redcap_event_name=="month_6_arm_2", "nasal_notes"] <- mon6_record30$nasal_notes
+data[data$identifier=="HDW-D02-S17" & data$redcap_event_name=="month_12_arm_2", "nasal_notes"] <- mon12_record30$nasal_notes
+
+# change the fecal details to the correct record for nasal_location at month 6 and 12
+data[data$identifier=="HDW-D02-S17" & data$redcap_event_name=="month_6_arm_2", "fecal_location"] <- mon6_record30$fecal_location
+data[data$identifier=="HDW-D02-S17" & data$redcap_event_name=="month_12_arm_2", "fecal_location"] <- mon12_record30$fecal_location
+data[data$identifier=="HDW-D02-S17" & data$redcap_event_name=="month_6_arm_2", "fecal_notes"] <- mon6_record30$fecal_notes
+data[data$identifier=="HDW-D02-S17" & data$redcap_event_name=="month_12_arm_2", "fecal_notes"] <- mon12_record30$fecal_notes
+
+# change the serum details to the correct record for nasal_location at month 12
+data[data$identifier=="HDW-D02-S17" & data$redcap_event_name=="month_12_arm_2", "serum_location"] <- mon12_record30$serum_location
+data[data$identifier=="HDW-D02-S17" & data$redcap_event_name=="month_12_arm_2", "serum_notes"] <- mon12_record30$serum_notes
+
+# Delete the repeat record from which the data above was transferred to the appropriate records
+data <- subset(data, !(data$identifier=="HDW-D02-S17" & data$redcap_event_name=="month_6_arm_1"))
+data <- subset(data, !(data$identifier=="HDW-D02-S17" & data$redcap_event_name=="month_12_arm_1"))
+
+
+
+# Record 32 (arm 1 to arm 2 for 12 and 24)
+mon12_record32 <- data %>% filter(redcap_event_name=="month_12_arm_1" & identifier=="HDW-D02-S200")
+mon24_record32 <- data %>% filter(redcap_event_name=="month_24_arm_1" & identifier=="HDW-D02-S200")
+
+# change the nasal details to the correct record for nasal_location at month 6 and 12
+data[data$identifier=="HDW-D02-S200" & data$redcap_event_name=="month_12_arm_2", "nasal_location"] <- mon12_record32$nasal_location
+data[data$identifier=="HDW-D02-S200" & data$redcap_event_name=="month_24_arm_2", "nasal_location"] <- mon24_record32$nasal_location
+data[data$identifier=="HDW-D02-S200" & data$redcap_event_name=="month_12_arm_2", "nasal_notes"] <- mon12_record32$nasal_notes
+data[data$identifier=="HDW-D02-S200" & data$redcap_event_name=="month_24_arm_2", "nasal_notes"] <- mon24_record32$nasal_notes
+
+# change the fecal details to the correct record for nasal_location at month 6 and 12
+data[data$identifier=="HDW-D02-S200" & data$redcap_event_name=="month_12_arm_2", "fecal_location"] <- mon12_record32$fecal_location
+data[data$identifier=="HDW-D02-S200" & data$redcap_event_name=="month_24_arm_2", "fecal_location"] <- mon24_record32$fecal_location
+data[data$identifier=="HDW-D02-S200" & data$redcap_event_name=="month_12_arm_2", "fecal_notes"] <- mon12_record32$fecal_notes
+data[data$identifier=="HDW-D02-S200" & data$redcap_event_name=="month_24_arm_2", "fecal_notes"] <- mon24_record32$fecal_notes
+
+# change the serum details to the correct record for nasal_location at month 12
+data[data$identifier=="HDW-D02-S200" & data$redcap_event_name=="month_12_arm_2", "serum_location"] <- mon12_record32$serum_location
+data[data$identifier=="HDW-D02-S200" & data$redcap_event_name=="month_24_arm_2", "serum_location"] <- mon24_record32$serum_location
+data[data$identifier=="HDW-D02-S200" & data$redcap_event_name=="month_12_arm_2", "serum_notes"] <- mon12_record32$serum_notes
+data[data$identifier=="HDW-D02-S200" & data$redcap_event_name=="month_24_arm_2", "serum_notes"] <- mon24_record32$serum_notes
+
+# Delete the repeat record from which the data above was transferred to the appropriate records
+data <- subset(data, !(redcap_event_name=="month_12_arm_1" & identifier=="HDW-D02-S200"))
+data <- subset(data, !(redcap_event_name=="month_24_arm_1" & identifier=="HDW-D02-S200"))
+
+#dat <- data
+data <- dat
+
+# Move data from record 83 to record 60 (wrong baseline input for record 60 that should have been under record 83 (HDW-C02-S114)
+
+baseline_record83 <- data %>% filter(redcap_event_name=="baseline_arm_2" & data$RedCap_id==83)
+
+# Change record 60 identifier to be S114
+data[data$RedCap_id==60 & data$redcap_event_name=="baseline_arm_2", "identifier"] <- "HDW-C02-S114"
+
+# change the nasal details to the correct record for nasal_location at month 6 and 12
+data[data$RedCap_id==60 & data$redcap_event_name=="baseline_arm_2", "nasal_location"] <- baseline_record83$nasal_location
+data[data$RedCap_id==60 & data$redcap_event_name=="baseline_arm_2", "nasal_notes"] <- baseline_record83$nasal_notes
+
+# change the fecal details to the correct record for nasal_location at month 6 and 12
+data[data$RedCap_id==60 & data$redcap_event_name=="baseline_arm_2", "fecal_location"] <- baseline_record83$fecal_location
+data[data$RedCap_id==60 & data$redcap_event_name=="baseline_arm_2", "fecal_notes"] <- baseline_record83$fecal_notes
+
+# change the serum details to the correct record for nasal_location at month 12
+data[data$RedCap_id==60 & data$redcap_event_name=="baseline_arm_2", "serum_location"] <- baseline_record83$serum_location
+data[data$RedCap_id==60 & data$redcap_event_name=="baseline_arm_2", "serum_notes"] <- baseline_record83$serum_notes
+data[data$RedCap_id==60 & data$redcap_event_name=="baseline_arm_2", "serum_notes"] <- baseline_record83$serum_date
+
+# Delete the repeat record from which the data above was transferred to the appropriate records
+data <- subset(data, !(redcap_event_name=="baseline_arm_2" & RedCap_id==83))
+
+# Delete record 60 month 3
+data <- subset(data, !(redcap_event_name=="month_3_arm_2" & RedCap_id==60))
+
+
+
+
+# Check to make sure there aren't duplicates for each of the redcap_event_name for each time point (make sure there isn't a month_3_arm_1 and month_3_arm_2)
 # Delete intermediate variables not of use: identifier_records and variables that are incomplete (id_number, id_number_v2, id_number_v3, record_id, record_id_v3)
 #data <- data %>% select(-c(identifier_records, id_number, id_number_v2, id_number_v3, record_id, record_id_v3))
 
