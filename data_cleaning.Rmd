@@ -3582,9 +3582,10 @@ levels(data$bp_and_glucose_complete.factor)=c("Incomplete","Unverified","Complet
 # Create one variable for study id named "identifier"
 
 ## new variables: identifier, RedCap_id (record_id and record_id_v3)
-## variables used:id_number, id_number_v2, id_number_v3, record_id, record_id_v3
-## cleaning: coalesced all id_number versions into "identifier" and record_id versions into "RedCap_id" so there is one variable containing id_number and record_id, changed "DHW-D01-S05" to be "HDW-D01-S05", filled in the whole identifier for those with only the last numbers, pulled the record_id for those missing id_numbers, matched the record_id to the id_number in RedCap
-## class: character
+## variables used:id_number, id_number_v2, id_number_v3; record_id, record_id_v3
+## cleaning: coalesced all id_number versions into "identifier" and record_id versions into "RedCap_id" so there is one variable containing id_number and record_id, changed "DHW-D01-S05" to be "HDW-D01-S05", filled in the whole identifier for those with only the last numbers, pulled the record_id for those missing id_numbers, matched the record_id to the id_number using RedCap
+## class: character, numeric
+## description: identifier- cleaned id variable, RedCap_id- cleaned record id variable
 ```{r}
 
 # Create new variable called "identifier" that contains the study id for all participants (combining "id_number", "id_number_v2", "id_number_v3)
@@ -3655,8 +3656,12 @@ data$identifier_records <- replace(data$identifier_records, data$identifier_reco
 
 # Rename identifier_records to be identifier
 data$identifier <- data$identifier_records
+```
 
 
+
+# Fixing records that have missing data in another duplicate record (those switching between the dairy and community arms for identifier HDW-D02-S17 and HDW-D02-S200) and transferred data from an incorrectly associated identifier to the correct location while filling in lab data (HDW-C02-S114).
+```{r}
 # Adding variables from lab specimens to complete a record 
 
 # Record 30
@@ -3711,8 +3716,6 @@ data[data$identifier=="HDW-D02-S200" & data$redcap_event_name=="month_24_arm_2",
 data <- subset(data, !(redcap_event_name=="month_12_arm_1" & identifier=="HDW-D02-S200"))
 data <- subset(data, !(redcap_event_name=="month_24_arm_1" & identifier=="HDW-D02-S200"))
 
-#dat <- data
-data <- dat
 
 # Move data from record 83 to record 60 (wrong baseline input for record 60 that should have been under record 83 (HDW-C02-S114)
 
@@ -3742,6 +3745,40 @@ data <- subset(data, !(redcap_event_name=="month_3_arm_2" & RedCap_id==60))
 
 
 
+#S140
+baseline_record93 <- data %>% filter(redcap_event_name=="baseline_arm_2" & data$RedCap_id==93)
+
+# change the fecal details to the correct record for nasal_location at baseline
+data[data$RedCap_id==90 & data$redcap_event_name=="baseline_arm_2", "fecal_location"] <- baseline_record93$fecal_location
+data[data$RedCap_id==90 & data$redcap_event_name=="baseline_arm_2", "fecal_notes"] <- baseline_record93$fecal_notes
+data[data$RedCap_id==90 & data$redcap_event_name=="baseline_arm_2", "fecal_total_subsamples"] <- baseline_record93$fecal_total_subsamples
+
+# Delete the repeat record from which the data above was transferred to the appropriate records
+data <- subset(data, !(redcap_event_name=="baseline_arm_2" & RedCap_id==93))
+
+
+#S141
+baseline_record94 <- data %>% filter(redcap_event_name=="baseline_arm_2" & data$RedCap_id==94)
+
+# change the fecal details to the correct record for nasal_location at baseline
+data[data$RedCap_id==91 & data$redcap_event_name=="baseline_arm_2", "fecal_total_subsamples"] <- baseline_record94$fecal_total_subsamples
+
+# Delete the repeat record from which the data above was transferred to the appropriate records
+data <- subset(data, !(redcap_event_name=="baseline_arm_2" & RedCap_id==94))
+
+#S143
+mon3_record92 <- data %>% filter(redcap_event_name=="month_3_arm_2" & data$RedCap_id==92)
+mon24_record95 <- data %>% filter(redcap_event_name=="month_24_arm_2" & data$RedCap_id==95)
+
+# change the fecal details to the correct record for nasal_location at baseline
+data[data$RedCap_id==95 & data$redcap_event_name=="month_3_arm_2", "fecal_location"] <- mon3_record92$fecal_location
+data[data$RedCap_id==92 & data$redcap_event_name=="month_24_arm_2", "nasal_notes"] <- mon24_record95$nasal_notes
+
+# Delete the repeat record from which the data above was transferred to the appropriate records
+data <- subset(data, !(redcap_event_name=="baseline_arm_2" & RedCap_id==92))
+data <- subset(data, !(redcap_event_name=="month_3_arm_2" & RedCap_id==92))
+data <- subset(data, !(redcap_event_name=="month_24_arm_2" & RedCap_id==95))
+
 
 # Check to make sure there aren't duplicates for each of the redcap_event_name for each time point (make sure there isn't a month_3_arm_1 and month_3_arm_2)
 # Delete intermediate variables not of use: identifier_records and variables that are incomplete (id_number, id_number_v2, id_number_v3, record_id, record_id_v3)
@@ -3751,6 +3788,15 @@ data <- subset(data, !(redcap_event_name=="month_3_arm_2" & RedCap_id==60))
 ```
 
 
+## new variables: arm (community or dairy arm), dropout_01, complete_01
+## variables used: identifier, 
+## cleaning: arm- pulled from ID if this person started as a dairy worker or community member to make a new variable that contains the letter "D" for dairy workers and "C" for community members and "S" for those who switched between arms (noted in . dropout_01- if this person dropped out of the study at any point. complete_01- check to see how many surveys are done for this person and if less than 5 then this is incomplete.
+
+
+```{r}
+data140 <- data %>% filter(identifier=="HDW-C02-S140")
+data140$redcap_event_name
+```
 
 
 
