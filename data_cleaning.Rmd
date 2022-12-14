@@ -4104,7 +4104,9 @@ for (obs in 1:ncol(dat)) {
 }
 length(dat)
 
+#Practice---- DELETE later 
 
+#### PRACTICE 
 ```
 
 
