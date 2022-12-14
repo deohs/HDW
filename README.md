@@ -46,6 +46,4 @@ Resources for data cleaning and coding in R
 1. [R for applied epidemiology and public health | The Epidemiologist R Handbook (epirhandbook.com)](https://epirhandbook.com/en/)
 2. [Welcome | R for Data Science (had.co.nz)](https://r4ds.had.co.nz/index.html)
 3. [The R Markdown Cheat Sheet - RStudio](https://www.rstudio.com/blog/the-r-markdown-cheat-sheet/)
-4. RMarkdown
-
-[rmarkdown.pdf](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/4041daa4-1094-4e19-9925-23f14fb92305/rmarkdown.pdf) 
+4. RMarkdown [rmarkdown.pdf](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/4041daa4-1094-4e19-9925-23f14fb92305/rmarkdown.pdf) 
