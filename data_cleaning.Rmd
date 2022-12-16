@@ -27,18 +27,19 @@ if (!require(pacman)) install.packages('pacman', repos = 'https://cloud.r-projec
 pacman::p_load(dplyr, tidyr, janitor, ggplot2, readr, tidyverse, lubridate, naniar, Hmisc, gmodels)
 ```
 
+
 ## Moving forward if using non-UW related computer, first log in to the Big-EP Edge Client VPN, using netid and then proceed to change file path accordingly. 
 ## it should say read.csv("/projects/prlab/unrestricted/")
 
 ```{r}
 # Reading in data and labels
 #data <- read.csv("/projects/prlab/unrestricted/Center Projects/Healthy Dairy Worker/Data and Analysis/Data/HealthyDairyWorkers_DATA_2022-10-12_1152.csv")
-data <- read.csv("Z:/unrestricted/Center Projects/Healthy Dairy Worker/Data and Analysis/Data/HealthyDairyWorkers_DATA_2022-10-12_1152.csv")
+data <- read.csv("R:/unrestricted/Center Projects/Healthy Dairy Worker/Data and Analysis/Data/HealthyDairyWorkers_DATA_2022-10-12_1152.csv")
 
 data <- as.data.frame(data)
 
 #labels <- read.csv("/projects/prlab/unrestricted/Center Projects/Healthy Dairy Worker/Data and Analysis/Data/HealthyDairyWorkers_DATA_LABELS_2022-10-10.csv")
-labels <- read.csv("Z:/unrestricted/Center Projects/Healthy Dairy Worker/Data and Analysis/Data/HealthyDairyWorkers_DATA_LABELS_2022-10-10.csv")
+labels <- read.csv("R:/unrestricted/Center Projects/Healthy Dairy Worker/Data and Analysis/Data/HealthyDairyWorkers_DATA_LABELS_2022-10-10.csv")
 ```
 
 
@@ -49,7 +50,7 @@ data <- as.data.frame(data)
 
 ```
 
-
+#RedCap cleaning code to label and factorize some variables
 ```{r}
 #Setting Labels- all clean and working as of October 27,2022 
 
@@ -3579,18 +3580,18 @@ levels(data$bp_and_glucose_complete.factor)=c("Incomplete","Unverified","Complet
 
 
 
-# Create one variable for study id named "identifier"
+# Create one variable for study id named "identifier" and RedCap_id
 
-## new variables: identifier, RedCap_id (record_id and record_id_v3)
+## new variables: identifier, RedCap_id
 ## variables used:id_number, id_number_v2, id_number_v3; record_id, record_id_v3
-## cleaning: coalesced all id_number versions into "identifier" and record_id versions into "RedCap_id" so there is one variable containing id_number and record_id, changed "DHW-D01-S05" to be "HDW-D01-S05", filled in the whole identifier for those with only the last numbers, pulled the record_id for those missing id_numbers, matched the record_id to the id_number using RedCap
+## cleaning: make one variable containing id_number and record_id, changed "DHW-D01-S05" to be "HDW-D01-S05", filled in the whole identifier for those with only the last numbers, pulled the record_id for those missing id_numbers, matched the record_id to the id_number using RedCap
+## identifier: coalesced all id_number versions into "identifier"
+## RedCap_id: coalesced all record_id versions into "RedCap_id"
 ## class: character, numeric
 ## description: identifier- cleaned id variable, RedCap_id- cleaned record id variable
 ```{r}
-
 # Create new variable called "identifier" that contains the study id for all participants (combining "id_number", "id_number_v2", "id_number_v3)
 data <- data %>% mutate(identifier = coalesce(id_number, id_number_v2, id_number_v3))
-
 
 # Delete completely empty observations (record_id = 96 and 99)
 data <- data %>% filter(record_id!=96 & record_id!=97 & record_id!=98 & record_id!=99) #96 and 99 were blank:97 and 98 only had ID number with no data
@@ -3599,7 +3600,6 @@ data <- data %>% filter(record_id!=96 & record_id!=97 & record_id!=98 & record_i
 data <- data %>% filter(record_id!=81) #duplicate data for ID S200 for month 12 only. Record ID C32 is the more complete of the records for this person. This person switched between dairy and community arms (held different jobs throughout)
 data <- data %>% filter(record_id!=72) #contained duplicate information for S125 that was already in S125's record
 data <- data %>% filter(record_id!=108) #almost completely empty except duplicate information in specimen collection forms (110 is complete)
-
 
 # Fix values that were spelled incorrectly or did not have the full identifier string
 data$identifier <- replace(data$identifier, data$identifier=="DHW-D01-S05", "HDW-D01-S05")
@@ -3648,11 +3648,6 @@ data$identifier_records <- replace(data$identifier_records, data$identifier_reco
 data$identifier_records <- replace(data$identifier_records, data$identifier_records=="94", "HDW-C02-S141")
 data$identifier_records <- replace(data$identifier_records, data$identifier_records=="95", "HDW-C02-S143")
 
-#data$identifier_records <- replace(data$identifier_records, data$identifier_records=="96", "") # NO DATA REMOVE FROM DATA SET
-#data$identifier_records <- replace(data$identifier_records, data$identifier_records=="97", "") # NO DATA REMOVE FROM DATA SET
-#data$identifier_records <- replace(data$identifier_records, data$identifier_records=="98", "") # NO DATA REMOVE FROM DATA SET
-#data$identifier_records <- replace(data$identifier_records, data$identifier_records=="99", "") # NO DATA REMOVE FROM DATA SET
-
 
 # Rename identifier_records to be identifier
 data$identifier <- data$identifier_records
@@ -3660,7 +3655,7 @@ data$identifier <- data$identifier_records
 
 
 
-# Fixing records that have missing data in another duplicate record (those switching between the dairy and community arms for identifier HDW-D02-S17 and HDW-D02-S200) and transferred data from an incorrectly associated identifier to the correct location while filling in lab data (HDW-C02-S114).
+# Fixing records that have missing data in another duplicate record (those switching between the dairy and community arms for identifier HDW-D02-S17 and HDW-D02-S200 and transferred data from an incorrectly associated identifier to the correct location while filling in lab data for HDW-C02-S114, HDW-C02-S140, HDW-C02-S141, HDW-C02-S143.
 ```{r}
 # Adding variables from lab specimens to complete a record 
 
@@ -3718,7 +3713,6 @@ data <- subset(data, !(redcap_event_name=="month_24_arm_1" & identifier=="HDW-D0
 
 
 # Move data from record 83 to record 60 (wrong baseline input for record 60 that should have been under record 83 (HDW-C02-S114)
-
 baseline_record83 <- data %>% filter(redcap_event_name=="baseline_arm_2" & data$RedCap_id==83)
 
 # Change record 60 identifier to be S114
@@ -3745,7 +3739,7 @@ data <- subset(data, !(redcap_event_name=="month_3_arm_2" & RedCap_id==60))
 
 
 
-#S140
+# HDW-C02-S140 move lab details to the correct record (from empty records)
 baseline_record93 <- data %>% filter(redcap_event_name=="baseline_arm_2" & data$RedCap_id==93)
 
 # change the fecal details to the correct record for nasal_location at baseline
@@ -3757,7 +3751,8 @@ data[data$RedCap_id==90 & data$redcap_event_name=="baseline_arm_2", "fecal_total
 data <- subset(data, !(redcap_event_name=="baseline_arm_2" & RedCap_id==93))
 
 
-#S141
+
+# HDW-C02-S141 move lab details to the correct record (from empty records)
 baseline_record94 <- data %>% filter(redcap_event_name=="baseline_arm_2" & data$RedCap_id==94)
 
 # change the fecal details to the correct record for nasal_location at baseline
@@ -3766,7 +3761,9 @@ data[data$RedCap_id==91 & data$redcap_event_name=="baseline_arm_2", "fecal_total
 # Delete the repeat record from which the data above was transferred to the appropriate records
 data <- subset(data, !(redcap_event_name=="baseline_arm_2" & RedCap_id==94))
 
-#S143
+
+
+# HDW-C02-S143 move lab details to the correct record (from empty records)
 mon3_record92 <- data %>% filter(redcap_event_name=="month_3_arm_2" & data$RedCap_id==92)
 mon24_record95 <- data %>% filter(redcap_event_name=="month_24_arm_2" & data$RedCap_id==95)
 
@@ -3803,7 +3800,6 @@ data140$redcap_event_name
 
 ```{r}
 # Fix FILL THIS IN WHEN DONE
-
 
 data$nasal_id<- replace(data$nasal_id, data$nasal_id=="XHDW-D01-S01", "HDW-D01-S01")
 data$spiro_id<- replace(data$spiro_id, data$spiro_id=="HDW-C01-S01", "HDW-D01-S01")
