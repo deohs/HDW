@@ -937,7 +937,7 @@ id_number_v3,community_survey,,text,ID Number,,,,,y,,
 work_occupation_v3,community_survey,,text,"?Cu?l es tu ocupaci?n?  / <font color=""red""> What is/are your occupation(s)? </font>",,,,,,HMW,
 work_occupation_contact,community_survey,,radio,"Si empleado, ?tu trabajo to pone in contacto con animales?  <font color=""red""> If employed, Does any of your work put in you contact with animals? </font >","1, Si  <font color=""red"">Yes</font > | 2, No  <font color=""red"">No</font >",,,,,HMW,
 occupation_animals_v3,community_survey,,text,"Cuales animales? / <font color=""red""> Which animals? </font >",,,,[work_occupation_contact] = '1',,,
-growup_on_farm_v3,community_survey,,radio,"Creciste en una granja entre las edades de nacimiento y 10 anos? <font color=""Red"">Did you grow up on a farm between the ages of birth and 10 years old?</font>","1, Si / Yes | 2, No / No",,,,,HMW,
+growup_on_farm_v3,community_survey,,radio,"Creciste en una granja entre las edades de nacimiento y 10 anos? <font color=""Red"">Did you grow up on a farm between the ages of birth and 10 years old?</font>","1, Si / Yes | 2, No / No",,,,,HMW,Y
 growup_farm_yrs_v3,community_survey,,text,"Si si, cuantoas anos vivio en un granja? <font color=""Red"">If you did grow up on a farm, how many years did you live on a farm from ages birth and 10 years?</font>
 
 ",,,,[growup_on_farm_v3] = '1',,HMW,
