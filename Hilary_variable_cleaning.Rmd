@@ -11,6 +11,37 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 ```{r}
+#setup and loading in data
 rm(list=ls())
+if (!require(pacman)) install.packages('pacman', repos = 'https://cloud.r-project.org')
+#REDCap generated code to add labels to all variables, make relevant variables factors, and assign levels
+pacman::p_load(dplyr, tidyr, janitor, ggplot2, readr, tidyverse, lubridate, naniar, Hmisc, gmodels)
 load("/projects/prlab/unrestricted/Center Projects/Healthy Dairy Worker/Data and Analysis/Data/cleaned_1.1.23.Rdata")
 ```
+
+New Variable: growup_on_farm_01, growup_on_farm_fact
+Variables Used: growup_on_farm___1, growup_on_farm___2, growup_on_farm_v3
+Cleaning: For growup_on_farm___1 and growup_on_farm___2 change 1 to Yes/No and 0 to NA. Combine all three gorwuo_on_fam variables into new logical and factor variables. 
+Class: growup_on_farm_01 = logical, growup_on_farm_fact = factor
+Description: Joint variables for "Did you grow up on a farm ages birth-10?"
+
+```{r, Grew up on Farm}
+table(data$growup_on_farm___1, data$growup_on_farm___2, deparse.level=2, useNA = "always")
+table(data$growup_on_farm_v3, deparse.level=2, useNA = "always")
+
+data$growup_on_farm___1[data$growup_on_farm___1==1] <- "Yes"
+data$growup_on_farm___1[data$growup_on_farm___1==0] <- NA
+
+data$growup_on_farm___2[data$growup_on_farm___2==1] <- "No"
+data$growup_on_farm___2[data$growup_on_farm___2==0] <- NA
+
+data <- data %>% mutate(growup_on_farm_01 = case_when(growup_on_farm___1 == "Yes" ~ 1,
+                                           growup_on_farm___2 == "No" ~ 0,
+                                           growup_on_farm_v3 == 1 ~ 1,
+                                           growup_on_farm_v3 == 2 ~ 0))
+
+data$growup_on_farm_fact <- factor(data$growup_on_farm_01, levels = 0:1, labels = c("No", "Yes"))
+
+table(data$growup_on_farm_fact, data$growup_on_farm_01, useNA = "always")
+```
+
