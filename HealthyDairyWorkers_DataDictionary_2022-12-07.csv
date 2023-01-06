@@ -29,7 +29,7 @@ covid_notes,attestation_form,,notes,Notes:,,,,,,,
 id_number,baseline_worker,,text,ID Number,,,,,y,,
 work_time_animals,baseline_worker,,text,"How long have you been working with cows? (in any capacity, round to the nearest year) ",,,,[baseline_arm_1][record_id]<>'',,,
 work_time_thisfarm,baseline_worker,,text,How long have you been working at this farm? (round to the nearest year),,,,,,,
-growup_on_farm,baseline_worker,,checkbox,"Creciste en una granja entre las edades de nacimiento y 10 anos? <font color=""Red"">Did you grow up on a farm between the ages of birth and 10 years old?</font>","1, Si / Yes | 2, No / No",,,,,HMW,
+growup_on_farm,baseline_worker,,checkbox,"Creciste en una granja entre las edades de nacimiento y 10 anos? <font color=""Red"">Did you grow up on a farm between the ages of birth and 10 years old?</font>","1, Si / Yes | 2, No / No",,,,,HMW,Y
 growup_farm_yrs,baseline_worker,,text,"Si si, cuantoas anos vivio en un granja? <font color=""Red"">If you did grow up on a farm, how many years did you live on a farm from ages birth and 10 years?</font>
 ",,,,[growup_on_farm(1)] = '1',,HMW,
 work_jobtitle,baseline_worker,,radio,"Cu?l es su t?tulo de trabajo actual?  /<font color=""red""> What is your current Job Title?</font>","1, Due?o de lecher?a / Farm Owner | 2, Mayordomo/supervisor de lecher?a / Farm Manager/Supervisor | 3, Orde?ador/t?cnico en la lecher?a / Dairy Worker/Technician | 4, Procesador de productos de la leche (l?cteos) /  Dairy Product Processor | 5, Mayordomo de cultivos agr?colas / Crop Manager | 6, Estudiante de agricultura / Agricultural Student | 8, Otro...especifique, por favor / Other, please specify",,,,,HMW,
@@ -1402,3 +1402,5 @@ bp_glc_date,bp_and_glucose,,text,Blood glucose collection date,,,date_mdy,[bp_gl
 bp_glc_time,bp_and_glucose,,text,Blood glucose time,,,time,[bp_glucose] = '1',,,
 bp_glc_level,bp_and_glucose,,text,Blood sugar level,,,,[bp_glucose] = '1',,,
 bp_glc_notes,bp_and_glucose,,notes,Blood glucose notes,,,,[bp_glucose] = '1',,,
+growup_on_farm_01,,,logical,,"0, No |1, Yes",,,,,HMW,Y
+growup_on_farm_fact,,,factor,,"2, No |1, Yes",,,,,HMW,Y
