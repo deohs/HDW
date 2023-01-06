@@ -25,7 +25,7 @@ Cleaning: For growup_on_farm___1 and growup_on_farm___2 change 1 to Yes/No and 0
 Class: growup_on_farm_01 = logical, growup_on_farm_fact = factor
 Description: Joint variables for "Did you grow up on a farm ages birth-10?"
 
-```{r, Grew up on Farm}
+```{r Grew up on Farm}
 table(data$growup_on_farm___1, data$growup_on_farm___2, deparse.level=2, useNA = "always")
 table(data$growup_on_farm_v3, deparse.level=2, useNA = "always")
 
@@ -43,5 +43,30 @@ data <- data %>% mutate(growup_on_farm_01 = case_when(growup_on_farm___1 == "Yes
 data$growup_on_farm_fact <- factor(data$growup_on_farm_01, levels = 0:1, labels = c("No", "Yes"))
 
 table(data$growup_on_farm_fact, data$growup_on_farm_01, useNA = "always")
+```
+
+New Variable: 
+Variables Used:
+Cleaning: Turned until age 5 to 5
+Class:
+Description:
+
+```{r Years Grew Up On Farm}
+#checking number of answers matches with people who reported growing up on farm
+sum(!is.na(data$growup_farm_yrs))
+sum(!is.na(data$growup_farm_yrs_v3))
+
+
+data <- data %>% mutate(growup_farm_num_yrs = coalesce(growup_farm_yrs, growup_farm_yrs_v3))
+data %>% filter(!is.na(growup_farm_num_yrs)) %>% select(growup_farm_num_yrs)
+
+#Need to change all to numbers and set to numeric
+data$growup_farm_num_yrs <-as.numeric(gsub("[a-z A-z]",'',data$growup_farm_num_yrs))
+data %>% filter(!is.na(growup_farm_num_yrs)) %>% select(growup_farm_num_yrs)
+summary(data$growup_farm_num_yrs)
+
+#Set values greater than 10 to missing as not possible values. NOT WORKING :(
+data %>% replace_with_na_at(.vars = c("growup_farm_yrs", "growup_farm_yrs_v3", "growup_farm_num_yrs"), condition = ~.growup_farm_num_yrs >10)
+summary(data$growup_farm_num_yrs)
 ```
 
